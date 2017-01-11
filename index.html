@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <style type="text/css">
+            body, html {
+                height:100%;
+                min-height:100%;
+                margin:0;
+            }
+            .button {
+                display:inline-block;
+                border: none;
+                color: white;
+                text-decoration: none;
+                font-size: 14px;
+                cursor: pointer;
+                margin-top: 5px;
+                width:auto;
+                height:auto;
+            }
+            .bid-button {
+                display:inline-block;
+                border: none;
+                color: white;
+                background-color: #4CAF50;
+                text-decoration: none;
+                font-size:4vh;
+                cursor: pointer;
+                margin: 5px;
+                width:100%;
+                height:auto;
+            }
+            input {
+                height:1.5em;
+                width:100%;
+                margin-top:5px;
+                border:none;
+                background-color:#fff;
+                color:#000;
+                padding-left: 5px;
+            }
+            .chat_wrapper {
+                bottom: 0px;
+                left:0px;
+                position:absolute;
+                width: 40%;
+                min-width:400px;
+                height:auto;
+                background: #111;
+                border: 1px solid #000;
+                padding: 3px;
+                font-family: sans-serif;
+            }
+            .chat_wrapper .message_box {
+                background: #F7F7F7;
+                height:auto;
+                min-height:1.2em;
+                max-height:6em;
+                overflow: auto;
+                border: 1px solid #000;
+                padding-left: 5px;
+            }
+            .system_msg {
+                color: #BDBDBD;font-style: italic;
+            }
+            .system_error {
+                color: #d00;
+            }
+            .user_name {
+                color:#4a83dc;
+            }
+            .user_message {
+                color: #333;
+            }
+            @media only screen and (max-width: 450px) {
+                /* For mobile phones: */
+                .chat_wrapper {
+                    width:90%;
+                    height:auto;
+                    min-width:0;
+                }
+            }
+            
+            .card{
+                height:30vh;
+                width:20vh;
+                background-color:#fff;
+                border:2px solid #000;
+                border-radius:2vh;
+                background-color:#fff;
+                display:inline-block;
+                font-size:5vh;
+                text-indent:2vh;
+                margin:2px;
+                padding-top:2px;
+                cursor:default;
+                vertical-align:top;
+                overflow:hidden;
+            }
+            .card-alt{
+                height:17vh;
+                width:17vh;
+                background-color:#fff;
+                border:2px solid #000;
+                border-radius:2vh;
+                background-color:#fff;
+                display:inline-block;
+                font-size:5vh;
+                text-indent:2vh;
+                padding-top:2px;
+                cursor:default;
+                vertical-align:top;
+                overflow:hidden;
+            }
+            .suit-symbol{
+                width:20vh;
+                margin-top:-2.5vh;
+                text-indent:0em;
+                text-align:center;
+                font-size:20vh;
+            }
+            .suit-symbol-alt{
+                width:17vh;
+                margin-top:-2vh;
+                text-indent:0em;
+                text-align:center;
+                font-size:17vh;
+            }
+            .hand{
+                margin:4px;
+                padding-right:15vh;
+            }
+            #content-wrapper{
+                height:100%;
+                width:100%;
+                overflow-y:auto;
+            }
+            .playarea{
+                border:none;
+                border-radius:2vh;
+                background-color:#222;
+                display:inline-block;
+                padding:0.6vh;
+                margin:0.6vh;
+                vertical-align: top;
+            }
+            .noselect {
+                -webkit-user-select: none;
+                -khtml-user-select: none
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+            }
+            #login {
+                position:absolute;
+                padding:1px 6px 6px 6px;
+                left:50%;
+                top:50%;
+                transform:translateY(-50%) translateX(-50%);
+                background-color:#222;
+            }
+        </style>
+        <script>
+            var connected = false;
+            var username = '';
+            var userid = -1;
+            var roomid = -1;
+            var grabbed = null;
+            var selectedCard = null;
+            var dragging = false;
+            var mode = 0;
+            var u_cards = [0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+            var u_playedcards = [0,0,0];
+            var u_playedusers = ['','',''];
+            var u_points = 0;
+            var u_dealer = 3;
+            var u_suit = -1;
+            var u_next = -1;
+            var next_bid = -1;
+            var within = function(x, y, e) {
+                var rect = e.getBoundingClientRect();
+                if (x > rect.left && x < rect.right && y > rect.top && y < rect.bottom)
+                    return true;
+                else
+                    return false;
+            }
+            var getEventLoc = function(e){
+                var loc = {x:0, y:0};
+                if(e.type == 'touchstart' || e.type == 'touchmove' || e.type == 'touchend' || e.type == 'touchcancel') {
+                    var touch = e.touches[0] || e.changedTouches[0];
+                    loc.x = touch.pageX;
+                    loc.y = touch.pageY;
+                } else if (e.type == 'mousedown' || e.type == 'mouseup' || e.type == 'mousemove' || e.type == 'mouseover'|| e.type=='mouseout' || e.type=='mouseenter' || e.type=='mouseleave') {
+                    loc.x = e.pageX;
+                    loc.y = e.pageY;
+                }
+                return loc;
+            };
+            var grabCard = function(e) {
+                dragging = true;
+                grabbed = e;
+                if (selectedCard === null) {
+                    selectedCard = document.getElementById("s0");
+                }
+                selectedCard.innerHTML = grabbed.innerHTML;
+                selectedCard.style.backgroundColor = '#fff';
+                var c_suit = Math.floor((parseInt(grabbed.getAttribute('value'))-1)/9);
+                if (c_suit === parseInt(u_suit)){
+                    selectedCard.style.backgroundColor = '#111';
+                    if (c_suit < 2)
+                        selectedCard.style.color= '#fff';
+                    else
+                        selectedCard.style.color= '#d11';
+                }
+                else if (c_suit >= 2) {
+                    selectedCard.style.backgroundColor = null;
+                    selectedCard.style.color= '#d11';
+                }
+                else {
+                    selectedCard.style.backgroundColor = null;
+                    selectedCard.style.color = null;
+                }
+            }
+            var dragCard = function(event) {
+                if (dragging === false || selectedCard === null || grabbed === null)
+                    return;
+                if (selectedCard.style.display = 'none') {
+                    grabbed.style.display = 'none';
+                    selectedCard.style.display = 'block';
+                }
+                var loc = getEventLoc(event);
+                var rect = selectedCard.getBoundingClientRect();
+                selectedCard.style.top = (loc.y - rect.height/2) + 'px';
+                selectedCard.style.left = (loc.x - rect.width/2) + 'px';
+            }
+            var getCardText = function(cardId){
+                if (cardId === 0)
+                    return '';
+                var value = (cardId-1)%9;
+                var suit = Math.floor((cardId-1)/9);
+                var text = '';
+                switch (value){
+                    case 0:
+                        text += '6';
+                        break;
+                    case 1:
+                        text += '7';
+                        break;
+                    case 2:
+                        text += '8';
+                        break;
+                    case 3:
+                        text += '9';
+                        break;
+                    case 4:
+                        text += 'J';
+                        break;
+                    case 5:
+                        text += 'Q';
+                        break;
+                    case 6:
+                        text += 'K';
+                        break;
+                    case 7:
+                        text += '10';
+                        break;
+                    case 8:
+                        text += 'A';
+                        break;
+                }
+                switch (suit){
+                    case 0:
+                        text += '♠';
+                        break;
+                    case 1:
+                        text += '♣';
+                        break;
+                    case 2:
+                        text += '♦';
+                        break;
+                    case 3:
+                        text += '♥';
+                        break;
+                }
+                return text;
+            }
+            var dropCard = function(event) {
+                if (dragging === false || grabbed === null || selectedCard === null)
+                    return;
+                dragging = false;
+                var loc = getEventLoc(event);
+                if (within(loc.x, loc.y, document.getElementById("playarea"))){
+                    var msg = {
+                        message: ('::c'+grabbed.getAttribute('value')),
+                        name: username,
+                        room: roomid,
+                        id: userid
+                    };
+                    websocket.send(JSON.stringify(msg));
+                }
+                grabbed.style.display = 'inline-block';
+                selectedCard.style.display = 'none';
+                decorateCards();
+            }
+            var decorateCards = function() {
+                var cards = document.getElementsByClassName('card');
+                var length = cards.length;
+                
+                var element;
+                for (var i = 0; i < 14; i++){
+                    element = document.getElementById('c' + i);
+                    element.setAttribute('value', u_cards[i]);
+                    element.innerHTML = getCardText(u_cards[i]);
+                    if (u_cards[i] === 0)
+                        element.style.display = 'none';
+                    else
+                        element.style.display = null;
+                }
+                for (var i = 0; i < 3; i++){
+                    element = document.getElementById('d' + i);
+                    element.setAttribute('value', u_playedcards[i]);
+                    element.innerHTML = getCardText(u_playedcards[i]);
+                    if (u_cards[i] === 0)
+                        element.style.backgroundColor = '#333';
+                }
+                for (var i = 0; i < length; i++) {
+                    if (cards[i].getAttribute('value') != '0'){
+                        if (cards[i].innerHTML.indexOf('♥') > -1) {
+                            cards[i].style.color= '#d11';
+                            if (cards[i].getElementsByClassName('suit-symbol').length === 0){
+                                var symbol = document.createElement('div');
+                                symbol.innerHTML = '♥';
+                                symbol.className = 'suit-symbol';
+                                cards[i].appendChild(symbol);
+                            }
+                        }
+                        else if (cards[i].innerHTML.indexOf('♦') > -1) {
+                            cards[i].style.color= '#d11';
+                            if (cards[i].getElementsByClassName('suit-symbol').length === 0){
+                                var symbol = document.createElement('div');
+                                symbol.innerHTML = '♦';
+                                symbol.className = 'suit-symbol';
+                                cards[i].appendChild(symbol);
+                            }
+                        }
+                        else if (cards[i].innerHTML.indexOf('♣') > -1) {
+                            cards[i].style.color= null;
+                            if (cards[i].getElementsByClassName('suit-symbol').length === 0){
+                                var symbol = document.createElement('div');
+                                symbol.innerHTML = '♣';
+                                symbol.className = 'suit-symbol';
+                                cards[i].appendChild(symbol);
+                            }
+                        }
+                        else if (cards[i].innerHTML.indexOf('♠') > -1) {
+                            cards[i].style.color= null;
+                            if (cards[i].getElementsByClassName('suit-symbol').length === 0){
+                                var symbol = document.createElement('div');
+                                symbol.innerHTML = '♠';
+                                symbol.className = 'suit-symbol';
+                                cards[i].appendChild(symbol);
+                            }
+                        }
+                        else {
+                            cards[i].style.color = null;
+                            cards[i].innerHTML = "";
+                        }
+                            
+                        if (cards[i].innerHTML === '') {
+                            cards[i].style.backgroundColor = '#555';
+                        }
+                        var c_suit = Math.floor((parseInt(cards[i].getAttribute('value'))-1)/9);
+                        if (c_suit === parseInt(u_suit)){
+                            cards[i].style.backgroundColor = '#111';
+                            if (c_suit < 2)
+                                cards[i].style.color= '#fff';
+                        }
+                        else
+                            cards[i].style.backgroundColor = null;
+                    }
+                }
+            }
+            var setMode = function(){
+                if (next_bid === userid){
+                    if (mode === -1){
+                        for (var i = 0; i < 7; i++){
+                            document.getElementById("b"+i).style.display = null;
+                        }
+                    }
+                    else if (mode === 0){
+                        document.getElementById("b0").style.display = null;
+                        document.getElementById("b1").style.display = 'none';
+                        document.getElementById("b2").style.display = null;
+                        document.getElementById("b3").style.display = null;
+                        document.getElementById("b4").style.display = null;
+                        document.getElementById("b5").style.display = null;
+                        document.getElementById("b6").style.display = null;
+                        //document.getElementById("b7").style.display = null;
+                    }
+                    else if (mode === 1){
+                        document.getElementById("b0").style.display = null;
+                        document.getElementById("b1").style.display = 'none';
+                        document.getElementById("b2").style.display = null;
+                        document.getElementById("b3").style.display = null;
+                        document.getElementById("b4").style.display = null;
+                        document.getElementById("b5").style.display = null;
+                        document.getElementById("b6").style.display = 'none';
+                        //document.getElementById("b7").style.display = null;
+                    }
+                    else if (mode === 2){
+                        document.getElementById("b0").style.display = null;
+                        document.getElementById("b1").style.display = 'none';
+                        document.getElementById("b2").style.display = 'none';
+                        document.getElementById("b3").style.display = 'none';
+                        document.getElementById("b4").style.display = 'none';
+                        document.getElementById("b5").style.display = null;
+                        document.getElementById("b6").style.display = 'none';
+                        //document.getElementById("b7").style.display = null;
+                    }
+                    else if (mode === 3){
+                        document.getElementById("b0").style.display = null;
+                        for (var i = 1; i < 7; i++){
+                            document.getElementById("b"+i).style.display = 'none';
+                        }
+                        //document.getElementById("b7").style.display = null;
+                    }
+                    else if (mode === 4){
+                        // NOT IMPLEMENTED
+                    }
+                    document.getElementById("bidarea").style.display = null;
+                    document.getElementById("playarea").style.display = 'none';
+                }
+                else if (next_bid === -1){
+                    document.getElementById("bidarea").style.display = 'none'; // This causes a flicker somehow
+                    document.getElementById("playarea").style.display = null;
+                }
+                else{
+                    document.getElementById("bidarea").style.display = 'none';
+                    document.getElementById("playarea").style.display = 'none';
+                }
+            }
+            var initSocket = function() {
+                var wsUri = "ws://localhost:9000/server.php"; 	
+                websocket = new WebSocket(wsUri); 
+                
+                websocket.onopen = function(ev) {
+                    connected = true;
+                    console.log('Connected to server');
+                }
+
+                document.getElementById('send-btn').onclick =(function(){ //use clicks message send button	
+                    var mymessage = document.getElementById('message').value; //get message text
+                    document.getElementById('message').value = '';
+                    var myname = username;
+                    
+                    if(mymessage == "")
+                        return;
+                        
+                    var objDiv = document.getElementById("message_box");
+                    objDiv.scrollTop = objDiv.scrollHeight;
+                    var msg = {
+                        message: mymessage,
+                        name: myname,
+                        room: roomid,
+                        id: userid
+                    };
+                    websocket.send(JSON.stringify(msg));
+                });
+                
+                websocket.onmessage = function(ev) {
+                    var msg = JSON.parse(ev.data);
+                    var type = msg.type;
+                    var umsg = msg.message;
+                    var uroom = msg.room;
+                    var uname = msg.name;
+
+                    if (uroom != roomid)
+                        return;
+                    if(type === 'usermsg') {
+                        var msg = document.createElement('div');
+                        msg.className = '';
+                        msg.innerHTML = '<span class="user_name">'+uname+'</span> : <span class="user_message">'+umsg+'</span>';
+                        document.getElementById('message_box').appendChild(msg);
+                    }
+                    else if(type === 'system') {
+                        var msg = document.createElement('div');
+                        msg.className = 'system_msg';
+                        msg.innerHTML = umsg;
+                        document.getElementById('message_box').appendChild(msg);
+                    }
+                    else if(type === 'data') {
+                        if (umsg[0] === '{'){
+                            var data = JSON.parse(umsg);
+                            if (userid === -1 && data.id != undefined) {
+                                userid = parseInt(data.id);
+                                var msg = document.createElement('div');
+                                msg.className = 'system_msg';
+                                msg.style.fontSize = '0.7em';
+                                msg.innerHTML = 'Room ' + roomid;
+                                document.getElementById('message_box').appendChild(msg);
+                            }
+                            if (data.id != undefined && userid === parseInt(data.id)) {
+                                if (data.u != undefined) {
+                                    var udata = data.u.split(',');
+                                    points = udata[0];
+                                    for (var i = 1; i < 15; i++){
+                                        u_cards[i-1] = parseInt(udata[i]);
+                                    }
+                                    document.getElementById("points").innerHTML = points;
+                                }
+                                if (data.r != undefined) {
+                                    var rdata = data.r.split(',');
+                                    u_dealer = rdata[0];
+                                    u_next = rdata[1];
+                                    for (var i = 3; i < 6; i++){
+                                        u_playedcards[i-3] = parseInt(rdata[i]);
+                                    }
+                                    for (var i = 6; i < 9; i++){
+                                        u_playedusers[i-6] = rdata[i];
+                                    }
+                                    next_bid = parseInt(rdata[9]);
+                                    mode = parseInt(rdata[10]);
+                                    u_suit = rdata[11];
+                                    setMode();
+                                }
+                                decorateCards();
+                            }
+                        }
+                    }
+                    
+                    var objDiv = document.getElementById("message_box");
+                    objDiv.scrollTop = objDiv.scrollHeight;
+                };
+                websocket.onclose = function(ev){
+                    var msg = document.createElement('div');
+                    msg.className = 'system_msg';
+                    msg.innerHTML = 'Connection Closed';
+                    document.getElementById('message_box').appendChild(msg);
+                }; 
+                websocket.onerror = function(ev){
+                    websocket.onclose = null;
+                    if(XMLHttpRequest) var x = new XMLHttpRequest();
+                    else var x = new ActiveXObject("Microsoft.XMLHTTP");
+                    x.open("GET", "server.php", true);
+                    x.send();
+                    var msg = document.createElement('div');
+                    initSocket();
+                }; 
+            }
+            var login = function() {
+                if (connected === false)
+                    return;
+                username = document.getElementById('input_name').value;
+                roomid = document.getElementById('input_room').value;
+                if (username === '')
+                    return;
+                document.getElementById('login').style.display = 'none';
+                document.getElementById('game_area').style.display = 'block';
+                
+                var msg = {
+                    message: '::JOIN',
+                    name: username,
+                    room: roomid,
+                    id: userid
+                };
+                websocket.send(JSON.stringify(msg));
+            }
+            var placeBid = function(v){
+                var msg = {
+                    message: '::b' + v,
+                    name: username,
+                    room: roomid,
+                    id: userid
+                };
+                websocket.send(JSON.stringify(msg));
+                document.getElementById('bidarea').style.display = 'none';
+                document.getElementById('playarea').style.display = null;
+            }
+            var fixRoomNumber = function(e){
+                if (e.value > 5)
+                    e.value = '5';
+                else if (e.value < 1)
+                    e.value = '1';
+            }
+        </script>
+    </head>
+    <body class="noselect" style="font-family:sans-serif;background-color:#333;overflow:hidden;" ontouchmove="dragCard(event);" onmousemove="dragCard(event);" onmouseup="dropCard(event);" ontouchend="dropCard(event);" onload="document.getElementById('input_name').focus();initSocket();">
+        <div id="login" style="display:flex;">
+            <input id="input_name" type="text" placeholder="Display Name" onkeydown="if(event.keyCode == 13)document.getElementById('login-btn').click()"></input>
+            <input id="input_room" type="number" value="1" style="width:30px;" max="5" min = "1" title="Room Number" onblur="fixRoomNumber(this);"></input>
+            <button class="button" id="login-btn" style="background-color:#4CAF50; float:right;" onclick="login();">Join</button>
+        </div>
+        <div id="game_area" style="display:none">
+            <span id="s0" class="card" value="0" style="display:none;position:absolute;z-index:10000;"></span>
+            <div id="points" class="playarea" style="font-size:5vh;position:absolute;color:#fff;right:0;top:0;">50</div>
+            <div id="content-wrapper" style="height:35vh;">
+                <div id="bidarea" style="padding:5px;padding-top:8vh;max-height:35vh;display:none;">
+                    <span id="b0" class="card-alt" onclick="placeBid(0);" title="Pass"><div class="suit-symbol-alt">⤫</div></span>
+                    <span id="b1" class="card-alt" onclick="placeBid(1);" title="Frog"><div class="suit-symbol-alt" style="color:#d11;">♥<div style="margin-top:-21vh;color:#000;">↓</div></div></span>
+                    <span id="b2" class="card-alt" onclick="placeBid(2);" title="Spade Solo"><div class="suit-symbol-alt">♠</div></span>
+                    <span id="b3" class="card-alt" onclick="placeBid(3);" title="Club Solo"><div class="suit-symbol-alt">♣</div></span>
+                    <span id="b4" class="card-alt" onclick="placeBid(4);" title="Diamond Solo"><div class="suit-symbol-alt" style="color:#d11;">♦</div></span>
+                    <span id="b5" class="card-alt" onclick="placeBid(5);" title="Heart Solo"><div class="suit-symbol-alt" style="color:#d11;">♥</div></span>
+                    <span id="b6" class="card-alt" onclick="placeBid(6);" title="Mazar"><div class="suit-symbol-alt">∼</div></span>
+                    <span id="b7" disabled="disabled" style="display:none;" class="card-alt" onclick="placeBid(7);" title="Spread Mazar"><div class="suit-symbol-alt">?</div></span>
+                </div>
+                <div class="playarea" id="playarea" style="display:none;"> 
+                    <span id="d0" value="0" class="card"></span>
+                    <span id="d1" value="0" class="card"></span>
+                    <span id="d2" value="0" class="card"></span>
+                </div>
+            </div>
+            <div id="content-wrapper" style="height:65vh;">
+                    <div class="hand">
+                        <span id="c0" class="card" value="0" onmousedown="grabCard(this);" ontouchstart="grabCard(this);" style="margin-right:-12vh;display:none;"></span>
+                        <span id="c1" class="card" value="0" onmousedown="grabCard(this);" ontouchstart="grabCard(this);" style="margin-right:-12vh;display:none;"></span>
+                        <span id="c2" class="card" value="0" onmousedown="grabCard(this);" ontouchstart="grabCard(this);" style="margin-right:-12vh;display:none;"></span>
+                        <span id="c3" class="card" value="0" onmousedown="grabCard(this);" ontouchstart="grabCard(this);" style="margin-right:-12vh;display:none;"></span>
+                        <span id="c4" class="card" value="0" onmousedown="grabCard(this);" ontouchstart="grabCard(this);" style="margin-right:-12vh;display:none;"></span>
+                        <span id="c5" class="card" value="0" onmousedown="grabCard(this);" ontouchstart="grabCard(this);" style="margin-right:-12vh;display:none;"></span>
+                        <span id="c6" class="card" value="0" onmousedown="grabCard(this);" ontouchstart="grabCard(this);" style="margin-right:-12vh;display:none;"></span>
+                        <span id="c7" class="card" value="0" onmousedown="grabCard(this);" ontouchstart="grabCard(this);" style="margin-right:-12vh;display:none;"></span>
+                        <span id="c8" class="card" value="0" onmousedown="grabCard(this);" ontouchstart="grabCard(this);" style="margin-right:-12vh;display:none;"></span>
+                        <span id="c9" class="card" value="0" onmousedown="grabCard(this);" ontouchstart="grabCard(this);" style="margin-right:-12vh;display:none;"></span>
+                        <span id="c10" class="card" value="0" onmousedown="grabCard(this);" ontouchstart="grabCard(this);" style="margin-right:-12vh;display:none;"></span>
+                        <span id="c11" class="card" value="0" onmousedown="grabCard(this);" ontouchstart="grabCard(this);" style="margin-right:-12vh;display:none;"></span>
+                        <span id="c12" class="card" value="0" onmousedown="grabCard(this);" ontouchstart="grabCard(this);" style="margin-right:-12vh;display:none;"></span>
+                        <span id="c13" class="card" value="0" onmousedown="grabCard(this);" ontouchstart="grabCard(this);" style="margin-right:-12vh;display:none;"></span>
+                    </div>
+                    <script>
+                        decorateCards();
+                    </script>
+            </div>
+            <div class="chat_wrapper" id="chat_box">
+                <div class="message_box" id="message_box"></div>
+                <div>
+                    <input type="text" name="name" id="name" style="display:none;" placeholder="Your Name" maxlength="15" />
+                    <div style="display:flex;">
+                        <button class="button" id="hide_button"  style="background-color: #555;" onclick="document.getElementById('chat_box').style.display = 'none'; document.getElementById('show_button').style.display = 'block';">&nbsp;</button>
+                        <input type="text" name="message" id="message" placeholder="Message" maxlength="80" onkeydown = "if (event.keyCode == 13)document.getElementById('send-btn').click()"/>
+                        <button id="send-btn" class="button" style="background-color: #4CAF50;">Send</button>
+                    </div>
+                </div>
+            </div>
+            <button class="button" id="show_button" style="background-color: #4CAF50;position:absolute;left:0;bottom:0;display:none;" onclick="document.getElementById('chat_box').style.display = 'block'; this.style.display = 'none';">&nbsp;</button>
+        </div>
+    </body>
+</html>
