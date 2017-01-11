@@ -322,7 +322,7 @@
                     element = document.getElementById('d' + i);
                     element.setAttribute('value', u_playedcards[i]);
                     element.innerHTML = getCardText(u_playedcards[i]);
-                    if (u_cards[i] === 0)
+                    if (u_playedcards[i] === 0)
                         element.style.backgroundColor = '#333';
                 }
                 for (var i = 0; i < length; i++) {
@@ -383,6 +383,8 @@
                 }
             }
             var setMode = function(){
+                if (u_cards.every((val, i, arr) => val === arr[0]))
+                    return;
                 if (next_bid === userid){
                     if (mode === -1){
                         for (var i = 0; i < 7; i++){
@@ -603,8 +605,8 @@
                     <span id="b3" class="card-alt" onclick="placeBid(3);" title="Club Solo"><div class="suit-symbol-alt">♣</div></span>
                     <span id="b4" class="card-alt" onclick="placeBid(4);" title="Diamond Solo"><div class="suit-symbol-alt" style="color:#d11;">♦</div></span>
                     <span id="b5" class="card-alt" onclick="placeBid(5);" title="Heart Solo"><div class="suit-symbol-alt" style="color:#d11;">♥</div></span>
-                    <span id="b6" class="card-alt" onclick="placeBid(6);" title="Mazar"><div class="suit-symbol-alt">∼</div></span>
-                    <span id="b7" disabled="disabled" style="display:none;" class="card-alt" onclick="placeBid(7);" title="Spread Mazar"><div class="suit-symbol-alt">?</div></span>
+                    <span id="b6" class="card-alt" onclick="placeBid(6);" title="Misere"><div class="suit-symbol-alt">∼</div></span>
+                    <span id="b7" disabled="disabled" style="display:none;" class="card-alt" onclick="placeBid(7);" title="Spread Misere"><div class="suit-symbol-alt">?</div></span>
                 </div>
                 <div class="playarea" id="playarea" style="display:none;"> 
                     <span id="d0" value="0" class="card"></span>

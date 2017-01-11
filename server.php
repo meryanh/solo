@@ -30,7 +30,7 @@ class Room {
     public $selected_id = 0;
     public $pending_suit_id = -1;
     public $suit_id = -1; // -1=none,spade,club,diamond,heart
-    public $mode = 0;     // -1=none,frog,mazar,solo,hsolo,smazar
+    public $mode = 0;     // -1=none,frog,Misere,solo,hsolo,sMisere
     public $ready = 0;
     public $user = array();
     public $down = array(0,0,0);
@@ -69,7 +69,7 @@ class Room {
         }
         return $id;
     }
-    public function deal(){
+    public function deal($rotate = true){
         $user_count = count($this->user);
         if ($user_count < 3)
             return;
@@ -84,7 +84,7 @@ class Room {
         else if ($user_count > 3){
             $this->next_id = ($this->dealer + 1)%4;
         }
-        else
+        else if ($rotate === true)
             $this->next_id = ($this->next_id + 1)%3;
         $this->next_bid = $this->next_id;
         for ($i = 0; $i < $user_count; $i++)
@@ -92,27 +92,27 @@ class Room {
         $this->round_score = 0;
         $next = ($this->dealer + 1)%$user_count;
         for ($i = 0; $i < 11; $i++) {
-            $rnd = rand()%count($deck);
+            $rnd = rand(0, count($deck)-1);
             $this->user[$next]->cards[$i] = $deck[$rnd];
             array_splice($deck, $rnd, 1);
         }
         rsort($this->user[$next]->cards, SORT_REGULAR);
         $next = ($next + 1)%$user_count;
         for ($i = 0; $i < 11; $i++) {
-            $rnd = rand()%count($deck);
+            $rnd = rand(0, count($deck)-1);
             $this->user[$next]->cards[$i] = $deck[$rnd];
             array_splice($deck, $rnd, 1);
         }
         rsort($this->user[$next]->cards, SORT_REGULAR);
         $next = ($next + 1)%$user_count;
         for ($i = 0; $i < 11; $i++) {
-            $rnd = rand()%count($deck);
+            $rnd = rand(0, count($deck)-1);
             $this->user[$next]->cards[$i] = $deck[$rnd];
             array_splice($deck, $rnd, 1);
         }
         rsort($this->user[$next]->cards, SORT_REGULAR);
         for ($i = 0; $i < 3; $i++) {
-            $rnd = rand()%count($deck);
+            $rnd = rand(0, count($deck)-1);
             $this->down[$i] = $deck[$rnd];
             array_splice($deck, $rnd, 1);
         }
@@ -280,28 +280,10 @@ class Room {
         $user_count = count($this->user);
         if ($user_count < 3)
             return;
-        if ($this->next_bid === $user_id && $this->mode < $value){
-            $this->mode = $value;
-            $this->selected_id = $user_id;
-            $this->next_id = $user_id;
-            $this->selected_id = $user_id;
-            $this->pending_suit_id = $suit;
-            $this->bid_count++;
-            $this->bid_count++;
-            if ($this->bid_count >= 3){
-                if ($this->mode === -1){
-                    $this->deal();
-                    return;
-                }
-                else{
-                    $this->ready = 1;
-                    $this->next_bid = -1;
-                    $this->lead_id = $user_id;
-                    $this->suit_id = $this->pending_suit_id;
-                    return;
-                }
-            }
-        }
+        if ($this->next_bid !== $user_id)
+            return;
+        $this->bid_count++;
+        echo ($this->selected_id)."\n";
         if ($user_count > 3){
             $this->next_bid = ($this->next_bid + 1)%4;
             if ($this->next_bid === $this->dealer)
@@ -309,6 +291,25 @@ class Room {
         }
         else
             $this->next_bid = ($this->next_bid + 1)%3;
+        if ($this->bid_count >= 3 && $this->mode === -1){
+            $this->bid_count = 0;
+            $this->deal(false);
+        }
+        if ($this->mode < $value){
+            $this->mode = $value;
+            $this->selected_id = $user_id;
+            $this->next_id = $user_id;
+            $this->selected_id = $user_id;
+            $this->pending_suit_id = $suit;
+            if ($this->bid_count >= 3){
+                $this->bid_count = 0;
+                $this->ready = 1;
+                $this->next_bid = -1;
+                $this->lead_id = $user_id;
+                $this->suit_id = $this->pending_suit_id;
+                return;
+            }
+        }
     }
 }
 $room = array();
@@ -402,12 +403,12 @@ while (true) {
                                 $room[$user_room]->place_bid($user_id, 3, 3);
                                 break;
                             case '6':
-                                $b_msg = $user_name.' selected Mazar.';
+                                $b_msg = $user_name.' selected Misere.';
                                 $room[$user_room]->place_bid($user_id, 1, -1);
                                 break;
                             case '7':
                                 break; // NOT IMPLEMENTED
-                                $b_msg = $user_name.' selected Spread Mazar.';
+                                $b_msg = $user_name.' selected Spread Misere.';
                                 $room[$user_room]->place_bid($user_id, 4, -1);
                                 break;
                             default:
