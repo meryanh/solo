@@ -1,24 +1,30 @@
 <?php
 set_time_limit(0);
-$socket_receive = function($msg, $socket){};
+$socket_receive = function($data, $socket){};
+$socket_connect = function($socket){};
 $socket_disconnect = function($socket){};
+$socket_stop = false;
 function get_ip($socket){
     $msgip = '';
     socket_getpeername($changed_socket,$msgip);
     return $msgip;
 }
-function handle_message($msg, $socket){
+function handle_message($data, $socket){
     $received_text = unmask($buf);
     $tst_msg = json_decode($received_text);
-    $socket_receive($msg, $socket);
+    $socket_receive($data, $socket);
+    return;
+}
+function handle_connect($socket){
+    $socket_connect($socket);
     return;
 }
 function handle_disconnect($socket){
     $socket_disconnect($socket);
     return;
 }
-function send_message($msg, $socket){
-    $response = mask($msg);
+function send_message($data, $socket){
+    $response = mask($data);
     @socket_write($socket,$response,strlen($response));
     return true;
 }
@@ -84,7 +90,7 @@ function socket_start(){
     socket_bind($socket, 0, $port);
     socket_listen($socket);
     $clients = array($socket);
-    while (true){
+    while ($socket_stop === false){
         $changed = $clients;
         socket_select($changed, $null, $null, 0, 10);
         if (in_array($socket, $changed)) {
@@ -94,6 +100,7 @@ function socket_start(){
             perform_handshaking($header, $socket_new, $host, $port);
             $found_socket = array_search($socket, $changed);
             $connection_count++;
+            handle_connect($socket_new);
             unset($changed[$found_socket]);
         }
         foreach ($changed as $changed_socket){

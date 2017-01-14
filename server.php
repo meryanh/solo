@@ -1,5 +1,5 @@
 <?php
-include 'sockets.php';
+include 'socket.php';
 class User {
     public $cards = array(0,0,0,0,0,0,0,0,0,0,0,0,0,0);
     public $points = 50;
@@ -308,3 +308,14 @@ class Room {
     }
 }
 $room = array();
+
+$socket_receive = function($data, $socket){
+    echo "Message received.\n";
+};
+$socket_connect = function($socket){
+    echo "User connected.\n";
+};
+$socket_disconnect = function($socket){
+    echo "User disconnected.\n";
+};
+socket_start();
