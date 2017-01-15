@@ -1,29 +1,30 @@
 <?php
 set_time_limit(0);
-$socket_receive = function($data, $socket){};
+$socket_receive = function($socket, $data){};
 $socket_connect = function($socket){};
 $socket_disconnect = function($socket){};
-$socket_stop = false;
 function get_ip($socket){
     $msgip = '';
-    socket_getpeername($changed_socket,$msgip);
+    socket_getpeername($socket,$msgip);
     return $msgip;
 }
-function handle_message($data, $socket){
-    $received_text = unmask($buf);
-    $tst_msg = json_decode($received_text);
-    $socket_receive($data, $socket);
+function handle_message($socket, $data){
+    global $socket_receive;
+    $socket_receive($socket, json_decode(unmask($data)));
     return;
 }
 function handle_connect($socket){
+    global $socket_connect;
     $socket_connect($socket);
     return;
 }
 function handle_disconnect($socket){
+    global $socket_disconnect;
     $socket_disconnect($socket);
     return;
 }
-function send_message($data, $socket){
+function send_message($socket, $data){
+    echo "$data\n";
     $response = mask($data);
     @socket_write($socket,$response,strlen($response));
     return true;
@@ -81,6 +82,7 @@ function perform_handshaking($receved_header,$client_conn, $host, $port){
     socket_write($client_conn,$upgrade,strlen($upgrade));
 }
 function socket_start(){
+    echo "socket started\n";
     $host = 'localhost';
     $port = '9000';
     $null = NULL;
@@ -90,7 +92,7 @@ function socket_start(){
     socket_bind($socket, 0, $port);
     socket_listen($socket);
     $clients = array($socket);
-    while ($socket_stop === false){
+    while (true){
         $changed = $clients;
         socket_select($changed, $null, $null, 0, 10);
         if (in_array($socket, $changed)) {
@@ -106,8 +108,8 @@ function socket_start(){
         foreach ($changed as $changed_socket){
             while(socket_recv($changed_socket, $buf, 1024, 0) >= 1){
                 try {
-                    handle_message($buf, $changed_socket);
-                    //break 2;
+                    handle_message($changed_socket, $buf);
+                    break 2;
                 } catch (Exception $e){
                     break 1;
                 }

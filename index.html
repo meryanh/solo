@@ -293,7 +293,7 @@
                 var loc = getEventLoc(event);
                 if (within(loc.x, loc.y, document.getElementById("playarea"))){
                     var msg = {
-                        message: ('::c'+grabbed.getAttribute('value')),
+                        message: ('::C'+grabbed.getAttribute('value')),
                         name: username,
                         room: roomid,
                         id: userid
@@ -562,7 +562,7 @@
                 document.getElementById('game_area').style.display = 'block';
                 
                 var msg = {
-                    message: '::JOIN',
+                    message: '::J',
                     name: username,
                     room: roomid,
                     id: userid
@@ -571,7 +571,7 @@
             }
             var placeBid = function(v){
                 var msg = {
-                    message: '::b' + v,
+                    message: '::B' + v,
                     name: username,
                     room: roomid,
                     id: userid
