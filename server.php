@@ -17,26 +17,33 @@ class User {
     }
 }
 class Room {
-    public $users = null;
-    public $user_count = 0;
-    public $current_user = -1;
-    public $dealer = 3;
-    public $down = array(0,0,0);
-    public $played = array(0,0,0);
-    public $user_played = array('','','');
-    public $mode = 0;
-    public $current_bid_user = -1;
-    public $selected_suit = -1;
-    public $pending_selected_suit = -1;
+    public $users = null;                       // Array of users (initialized when first user added)
+    public $user_count = 0;                     // The number of connected users (max 4)
+    public $current_user = -1;                  // User ID of next user to play
+    public $selected_user = -1;                 // User ID of user to win bid
+    public $dealer = 3;                         // User ID of the dealer (default 3)
+    public $down = array(0,0,0);                // The three cards in the "down" pile
+    public $played = array(0,0,0);              // ID of each played card
+    public $user_played_name = array('','',''); // Name of player for each played card
+    public $user_played_id = array(0,0,0);      // ID of player for each played cards
+    public $mode = -1;                          // -1=waiting, 0=bidding, 1=playing, 2=game over (restart)
+    public $bid_count = 0;                      // Count of users that have placed a bid
+    public $current_bid_user = -1;              // User ID of next user to bid
+    public $current_bid_value = -1;             // ID of currently winning bid type
+    public $selected_suit = -1;                 // Suit used as trump in play (-1=none, 0=spade, 1=club, 2=diamond, 3=heart)
+    public $pending_selected_suit = -1;         // Suit to be used as trump if the current highest bid succeeds
     public function data(){
-        $msg = $this->dealer.','.$this->current_user;
+        $msg = $this->mode.','.$this->selected_user.','.$this->current_user.','.$this->current_bid_user.','.$this->selected_suit;
         for ($i = 0; $i < 3; $i++){
             $msg = $msg.','.$this->played[$i];
         }
         for ($i = 0; $i < 3; $i++){
-            $msg = $msg.','.$this->user_played[$i];
+            $msg = $msg.','.$this->user_played_name[$i];
         }
-        return $msg.','.$this->current_bid_user.','.$this->mode.','.$this->selected_suit;
+        for ($i = 0; $i < 3; $i++){
+            $msg = $msg.','.$this->user_played_id[$i];
+        }
+        return $msg;
     }
     function add_user($user_name, $socket){
         if ($this->users === null){
@@ -51,8 +58,12 @@ class Room {
                 $this->users[$i]->socket = $socket;
                 $this->users[$i]->name = $user_name;
                 $this->users[$i]->active = true;
-                $this->users[$i]->address = get_ip($socket);
+                //$this->users[$i]->address = get_ip($socket);
                 $this->user_count++;
+                if ($this->mode === -1 && $this->user_count >= 3){
+                    $this->mode = 0;
+                    //$this->deal(0);
+                }
                 return $i;
             }
         }
@@ -67,8 +78,11 @@ class Room {
         }
     }
     function deal(){
-        if ($this->user_count < 3)
+        if ($this->mode !== 0 || $this->user_count < 3)
             return;
+            $first_bid = ($this->dealer + 1) % $this->user_count;
+        if ($this->users[$first_bid]->active === false)
+            $first_bid = ($this->dealer + 1) % $this->user_count;
         $this->pending_selected_suit = -1;
         for ($i = 0; $i < 4; $i++){
             $this->users[$i]->bid_level = -1;
@@ -76,64 +90,101 @@ class Room {
         }
         $this->down = array(0,0,0);
         $this->played = array(0,0,0);
-        $this->user_played = array('','','');
+        $this->user_played_name = array('','','');
+        $this->user_played_id = array(0,0,0);
         $deck = array(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,32,32,33,34,35,36);
+        $index = 0;
         for ($i = 0; $i < 4; $i++){
-            if ($i !== $this->dealer && $this->users[$i]->active !== false){
-                for ($i = 0; $i < 4; $i++){
+            if ($i === $this->dealer && $this->user_count > 3)
+                continue;
+            if ($this->users[$i]->active !== false){
+                for ($j = 0; $j < 4; $j++){
                     $rnd = rand(0, count($deck)-1);
-                    $this->users[$i]->cards[$i] = $deck[$rnd];
+                    $this->users[$i]->cards[$index+$j] = $deck[$rnd];
                     array_splice($deck, $rnd, 1);
                 }
             }
+            $index++;
         }
         for ($i = 0; $i < 4; $i++){
-            if ($i !== $this->dealer && $this->users[$i]->active !== false){
-                for ($i = 0; $i < 3; $i++){
+            if ($i === $this->dealer && $this->user_count > 3)
+                continue;
+            if ($this->users[$i]->active !== false){
+                for ($j = 0; $j < 3; $j++){
                     $rnd = rand(0, count($deck)-1);
-                    $this->users[$i]->cards[$i] = $deck[$rnd];
+                    $this->users[$i]->cards[$index+$j] = $deck[$rnd];
                     array_splice($deck, $rnd, 1);
                 }
             }
+            $index++;
         }
         for ($i = 0; $i < 3; $i++){
             $rnd = rand(0, count($deck)-1);
-            $this->down = $deck[$rnd];
+            $this->down[$i] = $deck[$rnd];
             array_splice($deck, $rnd, 1);
         }
         for ($i = 0; $i < 4; $i++){
-            if ($i !== $this->dealer && $this->users[$i]->active !== false){
-                for ($i = 0; $i < 4; $i++){
+            if ($i === $this->dealer && $this->user_count > 3)
+                continue;
+            if ($this->users[$i]->active !== false){
+                for ($j = 0; $j < 4; $j++){
                     $rnd = rand(0, count($deck)-1);
-                    $this->users[$i]->cards[$i] = $deck[$rnd];
+                    $this->users[$i]->cards[$index+$j] = $deck[$rnd];
                     array_splice($deck, $rnd, 1);
                 }
             }
+            $index++;
         }
         for ($i = 0; $i < 4; $i++){
-            if ($i !== $this->dealer && $this->users[$i]->active !== false){
+            if ($this->users[$i]->active !== false){
                 rsort($this->users[$i]->cards, SORT_REGULAR);
             }
         }
+        $this->bid_count = 0;
+        $this->current_bid_user = $first_bid;
+        $this->selected_suit = -1;
+        $this->pending_selected_suit = -1;
+        $this->mode = 0;
     }
     function rotate_dealer(){
-        if ($this->user_count !== 4)
+        if ($this->user_count < 3)
             return;
-        $this->dealer = ($this->dealer + 1) % 4;
+        $this->dealer = ($this->dealer + 1) % $this->user_count;
+        if ($this->users[$this->dealer]->active === false)
+            $this->dealer = ($this->dealer + 1) % $this->user_count;
+        echo "Current dealer is user ".$this->dealer."\n";
     }
     public function place_bid($user_id, $value, $suit){
         if ($this->mode !== 0 ||
             $this->user_count < 3 ||
-            $user_id === $this->dealer || 
+            ($user_id === $this->dealer && $this->user_count > 3) || 
+            $user_id !== $this->current_bid_user ||
             $user_id > 3 || 
             $this->users[$user_id]->bid_level !== -1)
             return false;
         $this->users[$user_id]->bid_level = $value;
         for ($i = 0; $i < 4; $i++){
-            if ($this->users[$i]->bid_level > $value)
+            if ($this->users[$i]->bid_level > $value){
+                echo "Current bidder is user ".$this->current_bid_user."\n";
+                echo "Pending suit is ".$this->pending_selected_suit."\n";
+                echo "Current bid level is ".$this->current_bid_value."\n";
+                $this->bid_count++;
                 return true;
+            }
         }
         $this->pending_selected_suit = $suit;
+        $this->current_bid_user = (($this->current_bid_user + 1) % $this->user_count);
+        if ($this->users[$this->current_bid_user]->active === false)
+            $this->current_bid_user = (($this->current_bid_user + 1) % $this->user_count);
+        echo "Current bidder is user ".$this->current_bid_user."\n";
+        echo "Pending suit is ".$this->pending_selected_suit."\n";
+        echo "Current bid level is ".$this->current_bid_value."\n";
+        $this->bid_count++;
+        if ($this->bid_count >= 3){
+            if ($this->current_bid_value === -1){
+                $this->deal();
+            }
+        }
         return true;
     }
 }
@@ -263,4 +314,27 @@ $socket_disconnect = function($socket){
         remove_user($socket);
     }
 };
-socket_start();
+/// TEST:
+$room[0] = new Room;
+echo $room[0]->data()."\n";
+$room[0]->add_user("user1", null);
+$room[0]->add_user("user2", null);
+$room[0]->add_user("user3", null);
+$room[0]->add_user("user4", null);
+$room[0]->deal();
+echo $room[0]->user_count."\n";
+echo $room[0]->data()."\n";
+echo $room[0]->users[0]->data()."\n";
+echo $room[0]->users[1]->data()."\n";
+echo $room[0]->users[2]->data()."\n";
+echo $room[0]->users[3]->data()."\n";
+$room[0]->place_bid(0, 0, 3);
+$room[0]->place_bid(1, -1, 0);
+$room[0]->place_bid(2, 2, 1);
+$room[0]->place_bid(3, -1, 0);
+echo $room[0]->data()."\n";
+echo $room[0]->users[0]->data()."\n";
+echo $room[0]->users[1]->data()."\n";
+echo $room[0]->users[2]->data()."\n";
+echo $room[0]->users[3]->data()."\n";
+//socket_start();
