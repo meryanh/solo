@@ -6,6 +6,7 @@ class User {
     public $name = '';
     public $bid_level = -1;
     public $active = false;
+    public $ready = false;
     public $address = '';
     public $socket = null;
     function data(){
@@ -17,8 +18,10 @@ class User {
     }
 }
 class Room {
+    public $locked = false;                     // Whether or not users are permitted to join the game
     public $users = null;                       // Array of users (initialized when first user added)
     public $user_count = 0;                     // The number of connected users (max 4)
+    public $starting_users = 0;                 // The number of connected users when the game started
     public $current_user = -1;                  // User ID of next user to play
     public $selected_user = -1;                 // User ID of user to win bid
     public $dealer = 3;                         // User ID of the dealer (default 3)
@@ -32,9 +35,14 @@ class Room {
     public $selected_suit = -1;                 // Suit used as trump in play (-1=none, 0=spade, 1=club, 2=diamond, 3=heart)
     public $pending_selected_suit = -1;         // Suit to be used as trump if the current highest bid succeeds
     public function data(){
-        if ($this->users === null)
-            return '0';
-        $msg = $this->mode.','.$this->selected_user.','.$this->current_user.','.$this->current_bid_user.','.$this->selected_suit;
+        if ($this->users === null){
+            $this->users = array();
+            $this->users[0] = new User;
+            $this->users[1] = new User;
+            $this->users[2] = new User;
+            $this->users[3] = new User;
+        }
+        $msg = $this->mode.','.$this->selected_user.','.$this->current_user.','.$this->current_bid_user.','.$this->current_bid_value.','.$this->selected_suit;
         for ($i = 0; $i < 3; $i++){
             $msg = $msg.','.$this->played[$i];
         }
@@ -47,6 +55,8 @@ class Room {
         return $msg;
     }
     function add_user($user_name, $socket){
+        if (($this->locked === true && ($this->starting_users === $this->user_count)) || $this->user_count >= 4)
+            return -1;
         if ($this->users === null){
             $this->users = array();
             $this->users[0] = new User;
@@ -61,14 +71,29 @@ class Room {
                 $this->users[$i]->active = true;
                 //$this->users[$i]->address = get_ip($socket);
                 $this->user_count++;
-                if ($this->mode === -1 && $this->user_count >= 3){
-                    $this->mode = 0;
-                    //$this->deal(0);
-                }
                 return $i;
             }
         }
         return -1;
+    }
+    function user_ready($user_id){
+        $this->users[$user_id]->ready = true;
+        echo "User $user_id is ready.\n";
+        if ($this->user_count >= 3){
+            $ready = true;
+            for ($i = 0; $i < 4; $i++){
+                if ($this->users[$i]->ready === false && $this->users[$i]->active === true){
+                    $ready = false;
+                }
+            }
+            if ($ready === true){
+                echo "All users are ready.\n";
+                $this->mode = 0;
+                $this->starting_users = $this->user_count;
+                $this->locked = true;
+                $this->deal();
+            }
+        }
     }
     function remove_user($socket){
         for ($i = 0; $i < 4; $i++){
@@ -230,7 +255,7 @@ $socket_receive = function($socket, $data){
             exit;
         }
         // User requested data from the server
-        else if ($user_message === '::R'){
+        else if ($user_message === '::I'){
             if (isset($room[$user_room]) && isset($room[$user_room]->users[$user_id])){
                 $response_text = json_encode(array('type'=>'data', 'room'=>$user_room, 'name'=>'Server', 'message'=>('{"id":"'.$user_id.'","u":"'.($room[$user_room]->users[$user_id]->data()).'","r":"'.($room[$user_room]->data()).'"}')));
                 send_message($room[$user_room]->users[$user_id]->socket,$response_text);
@@ -286,6 +311,10 @@ $socket_receive = function($socket, $data){
                 }
             }
         }
+        // User is ready to play
+        else if ($user_message === "::R"){
+            $room[$user_room]->user_ready($user_id);
+        }
         // User is attempting to play a card
         else if (substr($user_message,0,3) === "::C"){
             if (strlen($user_message) > 3){
@@ -322,9 +351,13 @@ $room[0]->add_user("user1", null);
 $room[0]->add_user("user2", null);
 $room[0]->add_user("user3", null);
 //$room[0]->add_user("user4", null);
+$room[0]->user_ready(0);
+//$room[0]->user_ready(3);
+$room[0]->user_ready(1);
+$room[0]->user_ready(2);
 //$room[0]->rotate_dealer();
-$room[0]->deal();
-echo $room[0]->user_count."\n";
+//$room[0]->deal();
+//$room[0]->users[3]->active = false;
 echo $room[0]->data()."\n";
 echo $room[0]->users[0]->data()."\n";
 echo $room[0]->users[1]->data()."\n";
