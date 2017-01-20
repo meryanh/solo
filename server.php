@@ -47,7 +47,7 @@ class Room {
             $this->users[2] = new User;
             $this->users[3] = new User;
         }
-        $msg = $this->mode.','.$this->selected_user.','.$this->current_user.','.$this->current_bid_user.','.$this->current_bid_value.','.$this->selected_suit;
+        $msg = $this->locked.','.$this->mode.','.$this->selected_user.','.$this->current_user.','.$this->current_bid_user.','.$this->current_bid_value.','.$this->selected_suit;
         for ($i = 0; $i < 3; $i++){
             $msg = $msg.','.$this->played[$i];
         }
@@ -78,26 +78,34 @@ class Room {
                 $this->users[$i]->active = true;
                 //$this->users[$i]->address = get_ip($socket);
                 $this->user_count++;
+                if ($this->users[$i]->ready == true){
+                    if ($this->check_ready() == true)
+                        $this->locked = false;
+                }
                 return $i;
             }
         }
         return -1;
     }
     
+    function check_ready(){
+        $ready = true;
+        for ($i = 0; $i < 4; $i++){
+            if ($this->users[$i]->ready == false && $this->users[$i]->active == true){
+                $ready = false;
+            }
+        }
+        return $ready;
+    }
+    
     // Mark the user as "ready"
     function user_ready($user_id){
         $this->users[$user_id]->ready = true;
         if ($this->user_count >= 3){
-            $ready = true;
-            for ($i = 0; $i < 4; $i++){
-                if ($this->users[$i]->ready == false && $this->users[$i]->active == true){
-                    $ready = false;
-                }
-            }
-            if ($ready == true){
+            if ($this->check_ready() == true){
                 $this->mode = 0;
                 $this->starting_users = $this->user_count;
-                $this->locked = true;
+                $this->locked = false;
                 $this->deal();
             }
         }
@@ -107,6 +115,9 @@ class Room {
     function remove_user($socket){
         for ($i = 0; $i < 4; $i++){
             if ($this->users[$i]->socket == $socket){
+                if ($this->users[$i]->ready == true){
+                    $this->locked = true;
+                }
                 $this->users[$i]->active = false;
                 $this->user_count--;
                 return;
@@ -116,7 +127,7 @@ class Room {
     
     // Distribute the cards to the players based on traditional rules
     function deal(){
-        if ($this->mode != 0 || $this->user_count < 3)
+        if ($this->locked == true || $this->mode != 0 || $this->user_count < 3)
             return;
             $first_bid = ($this->dealer + 1) % $this->user_count;
         if (($first_bid == $this->dealer && $this->user_count > 3) || $this->users[$first_bid]->active == false)
@@ -182,7 +193,8 @@ class Room {
     
     // Dermine if a user is capable of playing a card
     public function is_playable($user_id, $card_id){ 
-        if ($user_id != $this->current_user ||
+        if ($this->locked == true || 
+            $user_id != $this->current_user ||
             $this->mode != 1 ||
             in_array($card_id, $this->users[$user_id]->cards) == false ||
             $card_id == 0)
@@ -214,7 +226,8 @@ class Room {
     
     // Handle the "down" cards based on the winning bid level
     public function give_down(){ 
-        if ($this->down[0] == 0 ||
+        if ($this->locked == true || 
+            $this->down[0] == 0 ||
             $this->down[1] == 0 ||
             $this->down[2] == 0 ||
             $this->mode != 0) 
@@ -257,6 +270,16 @@ class Room {
         } 
     }
     
+    // Get the number of non-empty card slots this user has
+    function get_card_count($user_id){
+        $count = 0;
+        for ($i = 0; $i < 14; $i++)
+            if ($this->users[$user_id]->cards[$i] != 0)
+                $count++;
+        return $count;
+    }
+    
+    // Empty the card slot with the specified value
     function remove_card($user_id, $card_id){
         for ($i = 0; $i < 14; $i++){
             if ($this->users[$user_id]->cards[$i] == $card_id){
@@ -268,9 +291,12 @@ class Room {
     
     // Handle user playing a card
     function played_card($user_id, $card_id){
-        if ($user_id != $this->current_user || in_array($card_id, $this->users[$user_id]->cards) == false)
+        if ($this->locked == true ||
+            $this->mode != 1 ||
+            $user_id != $this->current_user ||
+            in_array($card_id, $this->users[$user_id]->cards) == false)
             return;
-        if ($user_id == $this->selected_user && count($this->users[$user_id]->cards) > 11){
+        if ($user_id == $this->selected_user && get_card_count($user_id) > 11){
             $this->round_score += $this->card_to_score($card_id);
             $this->remove_card($user_id, $card_id);
             return;
@@ -279,33 +305,64 @@ class Room {
             return;
         if ($this->played[0] == 0){
             $this->played[0] = $card_id;
+            $this->user_played_id[0] = $user_id;
             $this->remove_card($user_id, $card_id);
-            // Move to next player
-            return;
+            $this->current_user = ($this->current_user + 1) % $this->user_count;
+            if ($this->current_user == $this->dealer && $this->user_count > 3){
+                $this->current_user = ($this->current_user + 1) % $this->user_count;
+            }
         }
-        if ($this->played[1] == 0){
+        else if ($this->played[1] == 0){
             $this->played[1] = $card_id;
+            $this->user_played_id[1] = $user_id;
             $this->remove_card($user_id, $card_id);
-            // Move to next player
-            return;
+            $this->current_user = ($this->current_user + 1) % $this->user_count;
+            if ($this->current_user == $this->dealer && $this->user_count > 3){
+                $this->current_user = ($this->current_user + 1) % $this->user_count;
+            }
         }
-        if ($this->played[2] == 0){
+        else if ($this->played[2] == 0){
             $this->played[2] = $card_id;
+            $this->user_played_id[2] = $user_id;
             $this->remove_card($user_id, $card_id);
-            // Add score to winning side
-            // Set winner as next player
-            // Clear played cards
-            // If everyone is out of cards...
-            //     Rotate dealer
-            //     Re-deal
-            //     Set mode to 0
-            return;
+            $winner_id = 0;
+            $winner_score = 0;
+            $high_card = 0;
+            $starting_suit = floor(($this->played[$i]-1)/9);
+            $high_card = ($this->played[$i]-1)%9;
+            if (floor(($this->played[$i]-1)/9) == $this->selected_suit){
+                $high_card += 9;
+            }
+            for ($i = 1; $i < 3; $i++){
+                $winner_score += $this->card_to_score($this->played[$i]);
+                $card_suit = floor(($this->played[$i]-1)/9);
+                $card_value = ($this->played[$i]-1)%9;
+                if ($card_suit == $this->selected_suit){
+                    $card_value += 9;
+                }
+                else if ($card_suit != $starting_suit){
+                    $card_value = 0;
+                }
+                if ($high_card < $card_value){
+                    $winner_id = $i;
+                }
+            }
+            if ($winner_id == $this->selected_user){
+                $this->round_score += $winner_score;
+            }
+            // ^ If misere, first check if the selected user lost the round
+            if (get_card_count(0) == 0 && get_card_count(1) == 0 && get_card_count(2) == 0 && get_card_count(3) == 0){
+                // Dermine score modifier based on game type
+                // Add modified score value to the player's score
+                $this->rotate_dealaer();
+                $this->mode = 0;
+            }
         }
     }
     
     // Rotate the dealer role to the next user
     function rotate_dealer(){
-        if ($this->user_count < 3)
+        if ($this->locked == true || $this->user_count < 3)
             return;
         $this->dealer = ($this->dealer + 1) % $this->user_count;
         if ($this->users[$this->dealer]->active == false)
@@ -314,7 +371,8 @@ class Room {
     
     // Attempt to set the bid level and suit for a user
     public function place_bid($user_id, $value, $suit){
-        if ($this->mode != 0 ||
+        if ($this->locked == true || 
+            $this->mode != 0 ||
             $this->user_count < 3 ||
             ($user_id == $this->dealer && $this->user_count > 3) || 
             $user_id != $this->current_bid_user ||
