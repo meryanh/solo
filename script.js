@@ -1,5 +1,6 @@
 var connected = false;
 var username = '';
+var locked = false;
 var userid = -1;
 var roomid = -1;
 var grabbed = null;
@@ -8,9 +9,14 @@ var dragging = false;
 var mode = 0;
 var u_cards = [0,0,0,0,0,0,0,0,0,0,0,0,0,0];
 var u_playedcards = [0,0,0];
+var u_playedid = [0,0,0];
 var u_playedusers = ['','',''];
 var u_points = 0;
 var u_dealer = 3;
+var u_selected_user = -1;
+var u_current_user = -1;
+var u_current_bid_user = -1;
+var u_current_bid_value = -1;
 var u_suit = -1;
 var u_next = -1;
 var next_bid = -1;
@@ -107,16 +113,16 @@ var getCardText = function(cardId){
     }
     switch (suit){
         case 0:
-            text += '?';
+            text += '♠';
             break;
         case 1:
-            text += '?';
+            text += '♣';
             break;
         case 2:
-            text += '?';
+            text += '♦';
             break;
         case 3:
-            text += '?';
+            text += '♥';
             break;
     }
     return text;
@@ -162,38 +168,38 @@ var decorateCards = function() {
     }
     for (var i = 0; i < length; i++) {
         if (cards[i].getAttribute('value') != '0'){
-            if (cards[i].innerHTML.indexOf('?') > -1) {
+            if (cards[i].innerHTML.indexOf('♥') > -1) {
                 cards[i].style.color= '#d11';
                 if (cards[i].getElementsByClassName('suit-symbol').length === 0){
                     var symbol = document.createElement('div');
-                    symbol.innerHTML = '?';
+                    symbol.innerHTML = '♥';
                     symbol.className = 'suit-symbol';
                     cards[i].appendChild(symbol);
                 }
             }
-            else if (cards[i].innerHTML.indexOf('?') > -1) {
+            else if (cards[i].innerHTML.indexOf('♦') > -1) {
                 cards[i].style.color= '#d11';
                 if (cards[i].getElementsByClassName('suit-symbol').length === 0){
                     var symbol = document.createElement('div');
-                    symbol.innerHTML = '?';
+                    symbol.innerHTML = '♦';
                     symbol.className = 'suit-symbol';
                     cards[i].appendChild(symbol);
                 }
             }
-            else if (cards[i].innerHTML.indexOf('?') > -1) {
+            else if (cards[i].innerHTML.indexOf('♣') > -1) {
                 cards[i].style.color= null;
                 if (cards[i].getElementsByClassName('suit-symbol').length === 0){
                     var symbol = document.createElement('div');
-                    symbol.innerHTML = '?';
+                    symbol.innerHTML = '♣';
                     symbol.className = 'suit-symbol';
                     cards[i].appendChild(symbol);
                 }
             }
-            else if (cards[i].innerHTML.indexOf('?') > -1) {
+            else if (cards[i].innerHTML.indexOf('♠') > -1) {
                 cards[i].style.color= null;
                 if (cards[i].getElementsByClassName('suit-symbol').length === 0){
                     var symbol = document.createElement('div');
-                    symbol.innerHTML = '?';
+                    symbol.innerHTML = '♠';
                     symbol.className = 'suit-symbol';
                     cards[i].appendChild(symbol);
                 }
@@ -279,7 +285,7 @@ var setMode = function(){
     }
 }
 var initSocket = function() {
-    var wsUri = "ws://localhost:9000/server.php"; 	
+    var wsUri = "ws://" + window.location.host + ":9000/server.php";
     websocket = new WebSocket(wsUri); 
     
     websocket.onopen = function(ev) {
@@ -349,17 +355,23 @@ var initSocket = function() {
                     }
                     if (data.r != undefined) {
                         var rdata = data.r.split(',');
-                        u_dealer = rdata[0];
-                        u_next = rdata[1];
-                        for (var i = 3; i < 6; i++){
-                            u_playedcards[i-3] = parseInt(rdata[i]);
+                        console.log(rdata);
+                        locked = rdata[0];
+                        mode = rdata[1];
+                        u_selected_user = rdata[2];
+                        u_current_user = rdata[3];
+                        u_current_bid_user = rdata[4];
+                        u_current_bid_value = rdata[5];
+                        u_suit = rdata[6];
+                        for (var i = 7; i < 10; i++){
+                            u_playedcards[i-7] = parseInt(rdata[i]);
                         }
-                        for (var i = 6; i < 9; i++){
-                            u_playedusers[i-6] = rdata[i];
+                        for (var i = 10; i < 14; i++){
+                            u_playedusers[i-10] = rdata[i];
                         }
-                        next_bid = parseInt(rdata[9]);
-                        mode = parseInt(rdata[10]);
-                        u_suit = rdata[11];
+                        for (var i = 14; i < 17; i++){
+                            u_playedusers[i-14] = rdata[i];
+                        }
                         setMode();
                     }
                     decorateCards();
