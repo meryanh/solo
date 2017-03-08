@@ -42,13 +42,13 @@ var getEventLoc = function(e){
 var grabCard = function(e) {
     dragging = true;
     grabbed = e;
-    if (selectedCard === null) {
+    if (selectedCard == null) {
         selectedCard = document.getElementById("s0");
     }
     selectedCard.innerHTML = grabbed.innerHTML;
     selectedCard.style.backgroundColor = '#fff';
     var c_suit = Math.floor((parseInt(grabbed.getAttribute('value'))-1)/9);
-    if (c_suit === parseInt(u_suit)){
+    if (c_suit == parseInt(u_suit)){
         selectedCard.style.backgroundColor = '#111';
         if (c_suit < 2)
             selectedCard.style.color= '#fff';
@@ -65,7 +65,7 @@ var grabCard = function(e) {
     }
 }
 var dragCard = function(event) {
-    if (dragging === false || selectedCard === null || grabbed === null)
+    if (dragging == false || selectedCard == null || grabbed == null)
         return;
     if (selectedCard.style.display = 'none') {
         grabbed.style.display = 'none';
@@ -77,7 +77,7 @@ var dragCard = function(event) {
     selectedCard.style.left = (loc.x - rect.width/2) + 'px';
 }
 var getCardText = function(cardId){
-    if (cardId === 0)
+    if (cardId == 0)
         return '';
     var value = (cardId-1)%9;
     var suit = Math.floor((cardId-1)/9);
@@ -128,7 +128,7 @@ var getCardText = function(cardId){
     return text;
 }
 var dropCard = function(event) {
-    if (dragging === false || grabbed === null || selectedCard === null)
+    if (dragging == false || grabbed == null || selectedCard == null)
         return;
     dragging = false;
     var loc = getEventLoc(event);
@@ -154,7 +154,7 @@ var decorateCards = function() {
         element = document.getElementById('c' + i);
         element.setAttribute('value', u_cards[i]);
         element.innerHTML = getCardText(u_cards[i]);
-        if (u_cards[i] === 0)
+        if (u_cards[i] == 0)
             element.style.display = 'none';
         else
             element.style.display = null;
@@ -163,14 +163,14 @@ var decorateCards = function() {
         element = document.getElementById('d' + i);
         element.setAttribute('value', u_playedcards[i]);
         element.innerHTML = getCardText(u_playedcards[i]);
-        if (u_playedcards[i] === 0)
+        if (u_playedcards[i] == 0)
             element.style.backgroundColor = '#333';
     }
     for (var i = 0; i < length; i++) {
         if (cards[i].getAttribute('value') != '0'){
             if (cards[i].innerHTML.indexOf('♥') > -1) {
                 cards[i].style.color= '#d11';
-                if (cards[i].getElementsByClassName('suit-symbol').length === 0){
+                if (cards[i].getElementsByClassName('suit-symbol').length == 0){
                     var symbol = document.createElement('div');
                     symbol.innerHTML = '♥';
                     symbol.className = 'suit-symbol';
@@ -179,7 +179,7 @@ var decorateCards = function() {
             }
             else if (cards[i].innerHTML.indexOf('♦') > -1) {
                 cards[i].style.color= '#d11';
-                if (cards[i].getElementsByClassName('suit-symbol').length === 0){
+                if (cards[i].getElementsByClassName('suit-symbol').length == 0){
                     var symbol = document.createElement('div');
                     symbol.innerHTML = '♦';
                     symbol.className = 'suit-symbol';
@@ -188,7 +188,7 @@ var decorateCards = function() {
             }
             else if (cards[i].innerHTML.indexOf('♣') > -1) {
                 cards[i].style.color= null;
-                if (cards[i].getElementsByClassName('suit-symbol').length === 0){
+                if (cards[i].getElementsByClassName('suit-symbol').length == 0){
                     var symbol = document.createElement('div');
                     symbol.innerHTML = '♣';
                     symbol.className = 'suit-symbol';
@@ -197,7 +197,7 @@ var decorateCards = function() {
             }
             else if (cards[i].innerHTML.indexOf('♠') > -1) {
                 cards[i].style.color= null;
-                if (cards[i].getElementsByClassName('suit-symbol').length === 0){
+                if (cards[i].getElementsByClassName('suit-symbol').length == 0){
                     var symbol = document.createElement('div');
                     symbol.innerHTML = '♠';
                     symbol.className = 'suit-symbol';
@@ -209,11 +209,11 @@ var decorateCards = function() {
                 cards[i].innerHTML = "";
             }
                 
-            if (cards[i].innerHTML === '') {
+            if (cards[i].innerHTML == '') {
                 cards[i].style.backgroundColor = '#555';
             }
             var c_suit = Math.floor((parseInt(cards[i].getAttribute('value'))-1)/9);
-            if (c_suit === parseInt(u_suit)){
+            if (c_suit == parseInt(u_suit)){
                 cards[i].style.backgroundColor = '#111';
                 if (c_suit < 2)
                     cards[i].style.color= '#fff';
@@ -224,62 +224,68 @@ var decorateCards = function() {
     }
 }
 var setMode = function(){
-    if (u_cards.every((val, i, arr) => val === arr[0]))
+    if (u_cards.every((val, i, arr) => val == arr[0]))
         return;
-    if (next_bid === userid){
-        if (mode === -1){
-            for (var i = 0; i < 7; i++){
-                document.getElementById("b"+i).style.display = null;
+    if (mode == 0){
+        if (u_current_bid_user == userid){
+            document.getElementById("bidarea").style.display = null;
+            document.getElementById("playarea").style.display = 'none';
+            if (u_current_bid_value == -1){
+                for (var i = 0; i < 7; i++){
+                    document.getElementById("b"+i).style.display = null;
+                }
+            }
+            else if (u_current_bid_value == 0){
+                document.getElementById("b0").style.display = null;
+                document.getElementById("b1").style.display = 'none';
+                document.getElementById("b2").style.display = null;
+                document.getElementById("b3").style.display = null;
+                document.getElementById("b4").style.display = null;
+                document.getElementById("b5").style.display = null;
+                document.getElementById("b6").style.display = null;
+                document.getElementById("b7").style.display = null;
+            }
+            else if (u_current_bid_value == 1){
+                document.getElementById("b0").style.display = null;
+                document.getElementById("b1").style.display = 'none';
+                document.getElementById("b2").style.display = null;
+                document.getElementById("b3").style.display = null;
+                document.getElementById("b4").style.display = null;
+                document.getElementById("b5").style.display = null;
+                document.getElementById("b6").style.display = 'none';
+                document.getElementById("b7").style.display = null;
+            }
+            else if (u_current_bid_value == 2){
+                document.getElementById("b0").style.display = null;
+                document.getElementById("b1").style.display = 'none';
+                document.getElementById("b2").style.display = 'none';
+                document.getElementById("b3").style.display = 'none';
+                document.getElementById("b4").style.display = 'none';
+                document.getElementById("b5").style.display = null;
+                document.getElementById("b6").style.display = 'none';
+                document.getElementById("b7").style.display = null;
+            }
+            else if (u_current_bid_value == 3){
+                document.getElementById("b0").style.display = null;
+                for (var i = 1; i < 7; i++){
+                    document.getElementById("b"+i).style.display = 'none';
+                }
+                //document.getElementById("b7").style.display = null;
+            }
+            else if (u_current_bid_value == 4){
+                // NOT IMPLEMENTED
             }
         }
-        else if (mode === 0){
-            document.getElementById("b0").style.display = null;
-            document.getElementById("b1").style.display = 'none';
-            document.getElementById("b2").style.display = null;
-            document.getElementById("b3").style.display = null;
-            document.getElementById("b4").style.display = null;
-            document.getElementById("b5").style.display = null;
-            document.getElementById("b6").style.display = null;
-            //document.getElementById("b7").style.display = null;
-        }
-        else if (mode === 1){
-            document.getElementById("b0").style.display = null;
-            document.getElementById("b1").style.display = 'none';
-            document.getElementById("b2").style.display = null;
-            document.getElementById("b3").style.display = null;
-            document.getElementById("b4").style.display = null;
-            document.getElementById("b5").style.display = null;
-            document.getElementById("b6").style.display = 'none';
-            //document.getElementById("b7").style.display = null;
-        }
-        else if (mode === 2){
-            document.getElementById("b0").style.display = null;
-            document.getElementById("b1").style.display = 'none';
-            document.getElementById("b2").style.display = 'none';
-            document.getElementById("b3").style.display = 'none';
-            document.getElementById("b4").style.display = 'none';
-            document.getElementById("b5").style.display = null;
-            document.getElementById("b6").style.display = 'none';
-            //document.getElementById("b7").style.display = null;
-        }
-        else if (mode === 3){
-            document.getElementById("b0").style.display = null;
-            for (var i = 1; i < 7; i++){
-                document.getElementById("b"+i).style.display = 'none';
-            }
-            //document.getElementById("b7").style.display = null;
-        }
-        else if (mode === 4){
-            // NOT IMPLEMENTED
-        }
-        document.getElementById("bidarea").style.display = null;
+        else {
+        document.getElementById("bidarea").style.display = 'none';
         document.getElementById("playarea").style.display = 'none';
+        }
     }
-    else if (next_bid === -1){
-        document.getElementById("bidarea").style.display = 'none'; // This causes a flicker somehow
+    else if (mode == 1){
+        document.getElementById("bidarea").style.display = 'none';
         document.getElementById("playarea").style.display = null;
     }
-    else{
+    else {
         document.getElementById("bidarea").style.display = 'none';
         document.getElementById("playarea").style.display = 'none';
     }
@@ -321,22 +327,22 @@ var initSocket = function() {
 
         if (uroom != roomid)
             return;
-        if(type === 'usermsg') {
+        if(type == 'usermsg') {
             var msg = document.createElement('div');
             msg.className = '';
             msg.innerHTML = '<span class="user_name">'+uname+'</span> : <span class="user_message">'+umsg+'</span>';
             document.getElementById('message_box').appendChild(msg);
         }
-        else if(type === 'system') {
+        else if(type == 'system') {
             var msg = document.createElement('div');
             msg.className = 'system_msg';
             msg.innerHTML = umsg;
             document.getElementById('message_box').appendChild(msg);
         }
-        else if(type === 'data') {
-            if (umsg[0] === '{'){
+        else if(type == 'data') {
+            if (umsg[0] == '{'){
                 var data = JSON.parse(umsg);
-                if (userid === -1 && data.id != undefined) {
+                if (userid == -1 && data.id != undefined) {
                     userid = parseInt(data.id);
                     var msg = document.createElement('div');
                     msg.className = 'system_msg';
@@ -344,7 +350,7 @@ var initSocket = function() {
                     msg.innerHTML = 'Room ' + roomid;
                     document.getElementById('message_box').appendChild(msg);
                 }
-                if (data.id != undefined && userid === parseInt(data.id)) {
+                if (data.id != undefined && userid == parseInt(data.id)) {
                     if (data.u != undefined) {
                         var udata = data.u.split(',');
                         points = udata[0];
@@ -398,12 +404,22 @@ var initSocket = function() {
         initSocket();
     }; 
 }
+var readyUp = function() {    
+    var msg = {
+        message: '::R',
+        name: username,
+        room: roomid,
+        id: userid
+    };
+    websocket.send(JSON.stringify(msg));
+    document.getElementById('ready_button_container').style.display = 'none';
+}
 var login = function() {
-    if (connected === false)
+    if (connected == false)
         return;
     username = document.getElementById('input_name').value;
     roomid = document.getElementById('input_room').value;
-    if (username === '')
+    if (username == '')
         return;
     document.getElementById('login').style.display = 'none';
     document.getElementById('game_area').style.display = 'block';
@@ -415,6 +431,7 @@ var login = function() {
         id: userid
     };
     websocket.send(JSON.stringify(msg));
+    document.getElementById('ready_button_container').style.display = null;
 }
 var placeBid = function(v){
     var msg = {

@@ -296,7 +296,7 @@ class Room {
             $user_id != $this->current_user ||
             in_array($card_id, $this->users[$user_id]->cards) == 0)
             return;
-        if ($user_id == $this->selected_user && get_card_count($user_id) > 11){
+        if ($user_id == $this->selected_user && $this->get_card_count($user_id) > 11){
             $this->round_score += $this->card_to_score($card_id);
             $this->remove_card($user_id, $card_id);
             return;
@@ -351,7 +351,7 @@ class Room {
                 $this->round_score += $winner_score;
             }
             // ^ If misere, first check if the selected user lost the round
-            if (get_card_count(0) == 0 && get_card_count(1) == 0 && get_card_count(2) == 0 && get_card_count(3) == 0){
+            if ($this->get_card_count(0) == 0 && $this->get_card_count(1) == 0 && $this->get_card_count(2) == 0 && $this->get_card_count(3) == 0){
                 // Dermine score modifier based on game type
                 // Add modified score value to the player's score
                 $this->rotate_dealaer();
