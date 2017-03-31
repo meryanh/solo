@@ -62,6 +62,7 @@ class Room {
     
     // Try adding a user to this room
     function add_user($user_name, $socket){
+        echo "add_user\n";
         if ($this->user_count >= 4 || ($this->locked == 1 && ($this->starting_users == $this->user_count)))
             return -1;
         if ($this->users == null){
@@ -100,6 +101,7 @@ class Room {
     
     // Mark the user as "ready"
     function user_ready($user_id){
+        echo "user_ready\n";
         $this->users[$user_id]->ready = 1;
         if ($this->user_count >= 3){
             if ($this->check_ready() == 1){
@@ -127,6 +129,7 @@ class Room {
     
     // Distribute the cards to the players based on traditional rules
     function deal(){
+        echo "deal\n";
         if ($this->locked == 1 || $this->mode != 0 || $this->user_count < 3)
             return;
             $first_bid = ($this->dealer + 1) % $this->user_count;
@@ -291,6 +294,7 @@ class Room {
     
     // Handle user playing a card
     function played_card($user_id, $card_id){
+        echo "played_card\n";
         if ($this->locked == 1 ||
             $this->mode != 1 ||
             $user_id != $this->current_user ||
@@ -328,9 +332,9 @@ class Room {
             $winner_id = 0;
             $winner_score = 0;
             $high_card = 0;
-            $starting_suit = floor(($this->played[$i]-1)/9);
-            $high_card = ($this->played[$i]-1)%9;
-            if (floor(($this->played[$i]-1)/9) == $this->selected_suit){
+            $starting_suit = floor(($this->played[0]-1)/9);
+            $high_card = ($this->played[0]-1)%9;
+            if (floor(($this->played[0]-1)/9) == $this->selected_suit){
                 $high_card += 9;
             }
             for ($i = 1; $i < 3; $i++){
@@ -362,6 +366,7 @@ class Room {
     
     // Rotate the dealer role to the next user
     function rotate_dealer(){
+        echo "rotate_dealer\n";
         if ($this->locked == 1 || $this->user_count < 3)
             return;
         $this->dealer = ($this->dealer + 1) % $this->user_count;
@@ -371,6 +376,7 @@ class Room {
     
     // Attempt to set the bid level and suit for a user
     public function place_bid($user_id, $value, $suit){
+        echo "place_bid\n";
         if ($this->locked == 1 || 
             $this->mode != 0 ||
             $this->user_count < 3 ||
@@ -413,7 +419,7 @@ $room = array();
 
 $socket_receive = function($socket, $data){
     global $room;
-    echo "message received\n";
+    echo "socket_receive\n";
     try{
         if (is_object($data) == 0)
             return;
