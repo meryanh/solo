@@ -231,7 +231,7 @@ var readyUp = function() {
 var login = function() {
     if (connected == false)
         return;
-    username = document.getElementById('input_name').value;
+    username = document.getElementById('input_name').value.replace(/,/g,'');
     roomid = document.getElementById('input_room').value;
     if (username == '')
         return;

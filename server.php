@@ -81,7 +81,7 @@ class Room {
         for ($i = 0; $i < 4; $i++){
             if ($this->users[$i]->active == 0){
                 $this->users[$i]->socket = $socket;
-                $this->users[$i]->name = $user_name;
+                $this->users[$i]->name = str_replace(',', '', $user_name);
                 $this->users[$i]->active = 1;
                 //$this->users[$i]->address = get_ip($socket);
                 $this->user_count++;
