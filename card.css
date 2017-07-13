@@ -1,0 +1,175 @@
+﻿.card {
+    height:150px;
+    width:100px;
+    border:3px double #111;
+    border-radius:10%;
+    background-color:#fff;
+    display:inline-block;
+    font-family:sans-serif;
+    margin:4px;
+    cursor:default;
+    user-select:none;
+    overflow:hidden;
+}
+.hand {
+    display:inline-block;
+    margin:4px;
+    max-width:100%;
+}
+.card.in-hand {
+    margin-right:-80px;
+    transform:translateY(0.001px);
+}
+.card.in-hand:hover {
+    transform:translateX(-10px) translateY(-10px);
+}
+.card.in-hand:hover:after {
+    padding-bottom: 12px;
+}
+.card:before {
+    content:"";
+    display:block;
+    margin:4px;
+    font-size:20px;
+    position:absolute;
+    text-align:center;
+    white-space:pre;
+    line-height: 16px;
+    height:0;
+}
+.card:after {
+    content: "";
+    display: block;
+    width: 100px;
+    height: 150px;
+    line-height: 100%;
+    text-align: center;
+    font-size: 120px;
+    position: absolute;
+}
+.card[value='0'] {
+    display:none;
+}
+.card[value='19'], .card[value='20'], .card[value='21'], .card[value='22'], .card[value='23'], .card[value='24'], .card[value='25'], .card[value='26'], .card[value='27'], .card[value='28'], .card[value='29'], .card[value='30'], .card[value='31'], .card[value='32'], .card[value='33'], .card[value='34'], .card[value='35'], .card[value='36'] {
+    color:#F00;
+}
+.card[value='1']:after, .card[value='2']:after, .card[value='3']:after, .card[value='4']:after, .card[value='5']:after, .card[value='6']:after, .card[value='7']:after, .card[value='8']:after, .card[value='9']:after {
+    content:"♠";
+}
+.card[value='10']:after, .card[value='11']:after, .card[value='12']:after, .card[value='13']:after, .card[value='14']:after, .card[value='15']:after, .card[value='16']:after, .card[value='17']:after, .card[value='18']:after {
+    content:"♣";
+}
+.card[value='19']:after, .card[value='20']:after, .card[value='21']:after, .card[value='22']:after, .card[value='23']:after, .card[value='24']:after, .card[value='25']:after, .card[value='26']:after, .card[value='27']:after {
+    content:"♦";
+}
+.card[value='28']:after, .card[value='29']:after, .card[value='30']:after, .card[value='31']:after, .card[value='32']:after, .card[value='33']:after, .card[value='34']:after, .card[value='35']:after, .card[value='36']:after {
+    content:"♥";
+}
+.card[value='1']:before {
+    content:"6\A♠";
+}
+.card[value='2']:before {
+    content:"7\A♠";
+}
+.card[value='3']:before {
+    content:"8\A♠";
+}
+.card[value='4']:before {
+    content:"9\A♠";
+}
+.card[value='5']:before {
+    content:"J\A♠";
+}
+.card[value='6']:before {
+    content:"Q\A♠";
+}
+.card[value='7']:before {
+    content:"K\A♠";
+}
+.card[value='8']:before {
+    content:"10\A♠";
+}
+.card[value='9']:before {
+    content:"A\A♠";
+}
+.card[value='10']:before {
+    content:"6\A♣";
+}
+.card[value='11']:before {
+    content:"7\A♣";
+}
+.card[value='12']:before {
+    content:"8\A♣";
+}
+.card[value='13']:before {
+    content:"9\A♣";
+}
+.card[value='14']:before {
+    content:"J\A♣";
+}
+.card[value='15']:before {
+    content:"Q\A♣";
+}
+.card[value='16']:before {
+    content:"K\A♣";
+}
+.card[value='17']:before {
+    content:"10\A♣";
+}
+.card[value='18']:before {
+    content:"A\A♣";
+}
+.card[value='19']:before {
+    content:"6\A♦";
+}
+.card[value='20']:before {
+    content:"7\A♦";
+}
+.card[value='21']:before {
+    content:"8\A♦";
+}
+.card[value='22']:before {
+    content:"9\A♦";
+}
+.card[value='23']:before {
+    content:"J\A♦";
+}
+.card[value='24']:before {
+    content:"Q\A♦";
+}
+.card[value='25']:before {
+    content:"K\A♦";
+}
+.card[value='26']:before {
+    content:"10\A♦";
+}
+.card[value='27']:before {
+    content:"A\A♦";
+}
+.card[value='28']:before {
+    content:"6\A♥";
+}
+.card[value='29']:before {
+    content:"7\A♥";
+}
+.card[value='30']:before {
+    content:"8\A♥";
+}
+.card[value='31']:before {
+    content:"9\A♥";
+}
+.card[value='32']:before {
+    content:"J\A♥";
+}
+.card[value='33']:before {
+    content:"Q\A♥";
+}
+.card[value='34']:before {
+    content:"K\A♥";
+}
+.card[value='35']:before {
+    content:"10\A♥";
+}
+.card[value='36']:before {
+    content:"A\A♥";
+}

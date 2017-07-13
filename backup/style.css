@@ -1,0 +1,111 @@
+body, html {
+    height:100%;
+    min-height:100%;
+    margin:0;
+}
+.button {
+    display:inline-block;
+    border: none;
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 5px;
+    width:auto;
+    height: 24px;
+}
+.bid-button {
+    display:inline-block;
+    border: none;
+    color: white;
+    background-color: #4CAF50;
+    text-decoration: none;
+    font-size:4vh;
+    cursor: pointer;
+    margin: 5px;
+    width:100%;
+    height:auto;
+}
+input {
+    height: 24px;
+    padding:0px 0px 0px 5px;
+    width:100%;
+    margin-top:5px;
+    border:none;
+    background-color:#fff;
+    color:#000;
+    padding-left: 5px;
+}
+.chat_wrapper {
+    bottom: 0px;
+    left:0px;
+    position:absolute;
+    width: 40%;
+    min-width:400px;
+    height:auto;
+    background: #111;
+    border: 1px solid #000;
+    padding: 3px;
+    font-family: sans-serif;
+}
+.chat_wrapper .message_box {
+    background: #F7F7F7;
+    height:auto;
+    min-height:1.2em;
+    max-height:6em;
+    overflow: auto;
+    border: 1px solid #000;
+    padding-left: 5px;
+}
+.system_msg {
+    color: #BDBDBD;font-style: italic;
+}
+.system_error {
+    color: #d00;
+}
+.user_name {
+    color:#4a83dc;
+}
+.user_message {
+    color: #333;
+}
+@media only screen and (max-width: 450px) {
+    .chat_wrapper {
+        width:90%;
+        height:auto;
+        min-width:0;
+    }
+}
+.hand{
+    margin:4px;
+    padding-right:15vh;
+}
+#content-wrapper{
+    height:100%;
+    width:100%;
+    overflow-y:auto;
+}
+.playarea{
+    border:none;
+    border-radius:2vh;
+    background-color:#222;
+    display:inline-block;
+    padding:0.6vh;
+    margin:0.6vh;
+    vertical-align: top;
+}
+.noselect {
+    -webkit-user-select: none;
+    -khtml-user-select: none
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+#login {
+    position:absolute;
+    padding:1px 6px 6px 6px;
+    left:50%;
+    top:50%;
+    transform:translateY(-50%) translateX(-50%);
+    background-color:#222;
+}

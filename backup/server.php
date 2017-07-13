@@ -1,10 +1,4 @@
 <?php
-$fp = fopen('lockfile.lock', 'r+');
-if (!flock($fp, LOCK_EX | LOCK_NB)) {
-    exit;
-}
-try {
-    
 include 'socket.php';
 class User {
     public $cards = array(0,0,0,0,0,0,0,0,0,0,0,0,0,0);
@@ -556,9 +550,3 @@ $socket_disconnect = function($socket){
     }
 };
 socket_start();
-
-} catch (Exception $e) {
-    echo 'Caught exception: ',  $e->getMessage(), "\n";
-}
-fclose($fp);
-?>

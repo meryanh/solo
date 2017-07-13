@@ -1,0 +1,175 @@
+﻿.card {
+    height:25vw;
+    width:18vw;
+    border:3px double #111;
+    border-radius:10%;
+    background-color:#fff;
+    display:inline-block;
+    font-family:sans-serif;
+    margin:0.5vw;
+    cursor:default;
+    user-select:none;
+    overflow:hidden;
+}
+.hand {
+    display:inline-block;
+    border:3px double #111;
+    margin:1vw;
+    max-width: 100%;
+}
+.hand .card {
+    margin-right: -12vw;
+    transform:translateY(0.001vw);
+}
+.hand .card:hover {
+    transform:translateX(-1.8vw) translateY(-1.8vw);
+}
+.hand .card:hover:after {
+    padding-bottom:4vw;
+}
+.card:before {
+    content:"";
+    display:block;
+    margin:1vw;
+    font-size:5vw;
+    height:0;
+}
+.card:after {
+    content:"";
+    display:block;
+    width:100%;
+    height:100%;
+    margin-top:-1.5vw;
+    text-align:center;
+    font-size:20vw;
+}
+.card[label]+label:before {
+    content:attr(label);
+    display:block;
+}
+.card[value='0'] {
+    display:none;
+}
+.card[value='19'], .card[value='20'], .card[value='21'], .card[value='22'], .card[value='23'], .card[value='24'], .card[value='25'], .card[value='26'], .card[value='27'], .card[value='28'], .card[value='29'], .card[value='30'], .card[value='31'], .card[value='32'], .card[value='33'], .card[value='34'], .card[value='35'], .card[value='36'] {
+    color:#F00;
+}
+.card[value='1']:after, .card[value='2']:after, .card[value='3']:after, .card[value='4']:after, .card[value='5']:after, .card[value='6']:after, .card[value='7']:after, .card[value='8']:after, .card[value='9']:after {
+    content:"♠";
+}
+.card[value='10']:after, .card[value='11']:after, .card[value='12']:after, .card[value='13']:after, .card[value='14']:after, .card[value='15']:after, .card[value='16']:after, .card[value='17']:after, .card[value='18']:after {
+    content:"♣";
+}
+.card[value='19']:after, .card[value='20']:after, .card[value='21']:after, .card[value='22']:after, .card[value='23']:after, .card[value='24']:after, .card[value='25']:after, .card[value='26']:after, .card[value='27']:after {
+    content:"♦";
+}
+.card[value='28']:after, .card[value='29']:after, .card[value='30']:after, .card[value='31']:after, .card[value='32']:after, .card[value='33']:after, .card[value='34']:after, .card[value='35']:after, .card[value='36']:after {
+    content:"♥";
+}
+.card[value='1']:before {
+    content:"6♠";
+}
+.card[value='2']:before {
+    content:"7♠";
+}
+.card[value='3']:before {
+    content:"8♠";
+}
+.card[value='4']:before {
+    content:"9♠";
+}
+.card[value='5']:before {
+    content:"J♠";
+}
+.card[value='6']:before {
+    content:"Q♠";
+}
+.card[value='7']:before {
+    content:"K♠";
+}
+.card[value='8']:before {
+    content:"10♠";
+}
+.card[value='9']:before {
+    content:"A♠";
+}
+.card[value='10']:before {
+    content:"6♣";
+}
+.card[value='11']:before {
+    content:"7♣";
+}
+.card[value='12']:before {
+    content:"8♣";
+}
+.card[value='13']:before {
+    content:"9♣";
+}
+.card[value='14']:before {
+    content:"J♣";
+}
+.card[value='15']:before {
+    content:"Q♣";
+}
+.card[value='16']:before {
+    content:"K♣";
+}
+.card[value='17']:before {
+    content:"10♣";
+}
+.card[value='18']:before {
+    content:"A♣";
+}
+.card[value='19']:before {
+    content:"6♦";
+}
+.card[value='20']:before {
+    content:"7♦";
+}
+.card[value='21']:before {
+    content:"8♦";
+}
+.card[value='22']:before {
+    content:"9♦";
+}
+.card[value='23']:before {
+    content:"J♦";
+}
+.card[value='24']:before {
+    content:"Q♦";
+}
+.card[value='25']:before {
+    content:"K♦";
+}
+.card[value='26']:before {
+    content:"10♦";
+}
+.card[value='27']:before {
+    content:"A♦";
+}
+.card[value='28']:before {
+    content:"6♥";
+}
+.card[value='29']:before {
+    content:"7♥";
+}
+.card[value='30']:before {
+    content:"8♥";
+}
+.card[value='31']:before {
+    content:"9♥";
+}
+.card[value='32']:before {
+    content:"J♥";
+}
+.card[value='33']:before {
+    content:"Q♥";
+}
+.card[value='34']:before {
+    content:"K♥";
+}
+.card[value='35']:before {
+    content:"10♥";
+}
+.card[value='36']:before {
+    content:"A♥";
+}
