@@ -126,8 +126,14 @@ class Room {
                 if ($this->users[$i]->ready == 1){
                     $this->locked = 1;
                 }
+                echo "User in slot ".$i." has disconnected\n"
                 $this->users[$i]->active = 0;
                 $this->user_count--;
+                $response_text = json_encode(array('type'=>'usermsg', 'room'=>$user_room, 'name'=>'Server', 'message'=>($this->users[$i]->name).' has disconnected. Waiting for someone to join.'));
+                for ($j = 0; $j < 4; $j++){
+                    if ($this->users[$j]->active == 1)
+                        send_message($this->users[$j]->socket,$response_text);
+                }
                 return;
             }
         }
@@ -551,8 +557,6 @@ $socket_disconnect = function($socket){
     echo "user disconnected\n";
     for ($i = 0; $i < count($room); $i++){
         $room[$i]->remove_user($socket);
-        $response_text = json_encode(array('type'=>'usermsg', 'room'=>$user_room, 'name'=>'Server', 'message'=>'A user has disconnected. Waiting for someone to join.'));
-        send_message($room[$user_room]->users[$i]->socket,$response_text);
     }
 };
 socket_start();
