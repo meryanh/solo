@@ -24,7 +24,6 @@ function handle_disconnect($socket){
     return;
 }
 function send_message($socket, $data){
-    echo "$data\n";
     $response = mask($data);
     @socket_write($socket,$response,strlen($response));
     return true;
@@ -82,7 +81,6 @@ function perform_handshaking($receved_header,$client_conn, $host, $port){
     socket_write($client_conn,$upgrade,strlen($upgrade));
 }
 function socket_start(){
-    echo "socket started\n";
     $host = 'localhost';
     $port = '9000';
     $null = NULL;

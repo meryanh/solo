@@ -7,47 +7,49 @@
         <script type="text/javascript" src="script.js"></script>
     </head>
     <body class="noselect" style="font-family:sans-serif;background-color:#333;overflow:hidden;" ontouchmove="dragCard(event);" onmousemove="dragCard(event);" onmouseup="dropCard(event);" ontouchend="dropCard(event);" onload="document.getElementById('input_name').focus();initSocket();">
-        <button style="position:absolute;z-index:100001;top:50px;" onclick="readyUp();">READY</button>
-        <div id="login" style="position:absolute;z-index:100001;display:flex;">
+        <div id="login" class="centered"  style="z-index:1001;display:flex;">
             <input id="input_name" type="text" placeholder="Display Name" onkeydown="if(event.keyCode == 13)document.getElementById('login-btn').click()"></input>
             <input id="input_room" type="number" value="1" style="width:30px;" max="5" min = "1" title="Room Number" onblur="fixRoomNumber(this);"></input>
             <button class="button" id="login-btn" style="background-color:#4CAF50; float:right;" onclick="login();">Join</button>
         </div>
-        <div id="table" style="background-color:#111;height:165px;position:absolute;top:0;left:0;width:100%;padding:5px;overflow:hidden;">
-            <div id="bidarea" style="display:none;text-align:center;margin-top:20px;"><button>Pass</button><button>Frog</button><br /><button>Spade Solo</button><button>Club Solo</button><br /><button>Diamond Solo</button><button>Heart Solo</button><br /><button>Misere</button><button>Spread Misere</button></div>
-            <span id="d0" class="card" value="0"></span>
-            <span id="d1" class="card" value="0"></span>
-            <span id="d2" class="card" value="0"></span>
+        <div id="game_area" style="display:none;">
+            <div id="table" style="background-color:#111;height:165px;position:absolute;top:0;left:0;width:100%;padding:5px;overflow:hidden;">
+                <div id="bidarea" style="display:none;text-align:center;margin-top:20px;"><button class="large-button">Pass</button><button class="large-button">Frog</button class="large-button"><br /><button>Spade Solo</button><button class="large-button">Club Solo</button><br /><button class="large-button">Diamond Solo</button><button class="large-button">Heart Solo</button><br /><button class="large-button">Misere</button><button class="large-button">Spread Misere</button></div>
+                <span id="d0" class="card" value="0"></span>
+                <span id="d1" class="card" value="0"></span>
+                <span id="d2" class="card" value="0"></span>
+            </div>
+            <div id="hand" style="position:absolute;top:175px;left:0;width:100%;padding:5px;overflow:hidden;">
+                <span id="c0" class="card in-hand" value="0" onmousedown="grabCard(event, this);" ontouchstart="grabCard(event, this);"></span>
+                <span id="c1" class="card in-hand" value="0" onmousedown="grabCard(event, this);" ontouchstart="grabCard(event, this);"></span>
+                <span id="c2" class="card in-hand" value="0" onmousedown="grabCard(event, this);" ontouchstart="grabCard(event, this);"></span>
+                <span id="c3" class="card in-hand" value="0" onmousedown="grabCard(event, this);" ontouchstart="grabCard(event, this);"></span>
+                <span id="c4" class="card in-hand" value="0" onmousedown="grabCard(event, this);" ontouchstart="grabCard(event, this);"></span>
+                <span id="c5" class="card in-hand" value="0" onmousedown="grabCard(event, this);" ontouchstart="grabCard(event, this);"></span>
+                <span id="c6" class="card in-hand" value="0" onmousedown="grabCard(event, this);" ontouchstart="grabCard(event, this);"></span>
+                <span id="c7" class="card in-hand" value="0" onmousedown="grabCard(event, this);" ontouchstart="grabCard(event, this);"></span>
+                <span id="c8" class="card in-hand" value="0" onmousedown="grabCard(event, this);" ontouchstart="grabCard(event, this);"></span>
+                <span id="c9" class="card in-hand" value="0" onmousedown="grabCard(event, this);" ontouchstart="grabCard(event, this);"></span>
+                <span id="c10" class="card in-hand" value="0" onmousedown="grabCard(event, this);" ontouchstart="grabCard(event, this);"></span>
+                <span id="c11" class="card in-hand" value="0" onmousedown="grabCard(event, this);" ontouchstart="grabCard(event, this);"></span>
+                <span id="c12" class="card in-hand" value="0" onmousedown="grabCard(event, this);" ontouchstart="grabCard(event, this);"></span>
+                <span id="c13" class="card in-hand" value="0" onmousedown="grabCard(event, this);" ontouchstart="grabCard(event, this);"></span>
+            </div>
+            <span id="points" class="chip" style="background-color:#333;">50</span>
+            <span id="trump" class="chip" style="background-color:#333;top:125px;font-size:30px;">♠</span>
+            <span id="dragger" style="position:absolute;display:none;z-index:1000;" class="card" value="1"></span>
+            <button class="button" id="show_button" title="Show Chat" style="background-color: #4CAF50;position:absolute;left:0;bottom:0;display:none;" onclick="document.getElementById('chat_box').style.display = 'block'; this.style.display = 'none';">&nbsp;</button>
         </div>
-        <div id="hand" style="position:absolute;top:175px;left:0;width:100%;padding:5px;overflow:hidden;">
-            <span id="c0" class="card in-hand" value="0" onmousedown="grabCard(event, this);" ontouchstart="grabCard(event, this);"></span>
-            <span id="c1" class="card in-hand" value="0" onmousedown="grabCard(event, this);" ontouchstart="grabCard(event, this);"></span>
-            <span id="c2" class="card in-hand" value="0" onmousedown="grabCard(event, this);" ontouchstart="grabCard(event, this);"></span>
-            <span id="c3" class="card in-hand" value="0" onmousedown="grabCard(event, this);" ontouchstart="grabCard(event, this);"></span>
-            <span id="c4" class="card in-hand" value="0" onmousedown="grabCard(event, this);" ontouchstart="grabCard(event, this);"></span>
-            <span id="c5" class="card in-hand" value="0" onmousedown="grabCard(event, this);" ontouchstart="grabCard(event, this);"></span>
-            <span id="c6" class="card in-hand" value="0" onmousedown="grabCard(event, this);" ontouchstart="grabCard(event, this);"></span>
-            <span id="c7" class="card in-hand" value="0" onmousedown="grabCard(event, this);" ontouchstart="grabCard(event, this);"></span>
-            <span id="c8" class="card in-hand" value="0" onmousedown="grabCard(event, this);" ontouchstart="grabCard(event, this);"></span>
-            <span id="c9" class="card in-hand" value="0" onmousedown="grabCard(event, this);" ontouchstart="grabCard(event, this);"></span>
-            <span id="c10" class="card in-hand" value="0" onmousedown="grabCard(event, this);" ontouchstart="grabCard(event, this);"></span>
-            <span id="c11" class="card in-hand" value="0" onmousedown="grabCard(event, this);" ontouchstart="grabCard(event, this);"></span>
-            <span id="c12" class="card in-hand" value="0" onmousedown="grabCard(event, this);" ontouchstart="grabCard(event, this);"></span>
-            <span id="c13" class="card in-hand" value="0" onmousedown="grabCard(event, this);" ontouchstart="grabCard(event, this);"></span>
-        </div>
-        <span id="points" class="chip" style="background-color:#333;">50</span>
-        <span id="trump" class="chip" style="background-color:#333;top:125px;font-size:30px;">♠</span>
-        <span id="dragger" style="position:absolute;display:none;z-index:100000;" class="card" value="1"></span>
-        <div class="chat_wrapper" style="position:absolute;left:0px;bottom:0px;width:100%;max-height:165px;background-color:#333;border-top:5px solid #111;display:block;overflow:hidden;" id="chat_box">
+        <div class="chat_wrapper" style="position:absolute;left:0px;bottom:0px;width:100%;max-height:165px;background-color:#333;border-top:5px solid #111;display:none;overflow:hidden;" id="chat_box">
             <div class="message_box" id="message_box" style="color:#FFF;overflow-x:auto;position:relative;max-height:129px;font-size:16px;margin-left:3px;"></div>
             <div>
                 <input type="text" name="name" id="name" style="display:none;" placeholder="Your Name" maxlength="15" />
                 <div style="display:flex;">
-                    <button class="button" id="hide_button"  style="background-color: #555;" onclick="document.getElementById('chat_box').style.display = 'none'; document.getElementById('show_button').style.display = 'block';">&nbsp;</button>
-                    <input type="text" name="message" id="message" placeholder="Message" maxlength="80" style="color:#FFF;width:100%;position:relative;height:26px;border:none;border-top:2px solid #111;background-color:#444;font-size:16px;text-indent:3px;" onkeydown="if (event.keyCode == 13)document.getElementById('send-btn').click()"/>
-                    <button id="send-btn" class="button" style="background-color: #4CAF50;">Send</button>
+                    <button class="button" id="hide_button" title="Hide Chat" style="border-top:2px solid #111;background-color:#333;" onclick="document.getElementById('chat_box').style.display = 'none'; document.getElementById('show_button').style.display = 'block';">&nbsp;</button>
+                    <input type="text" name="message" id="message" placeholder="Message" maxlength="80" style="color:#FFF;width:100%;position:relative;height:26px;border:none;border-top:2px solid #111;"/>
                 </div>
             </div>
         </div>
+        <div id="ready_button_container" class="centered" style="display:none;z-index:1002;"><button class="button" id="ready_button" style="background-color: #4CAF50;" onclick="readyUp()">READY</button></div>
     </body>
 </html>

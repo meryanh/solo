@@ -1,19 +1,36 @@
-﻿.chip {
-    font-size: 16px;
-    line-height: 40px;
-    position: absolute;
-    top: 0;
-    right: 2px;
-    color: #fff;
-    margin: 5px;
-    border-radius: 50%;
-    height: 40px;
-    width: 40px;
-    text-align: center;
+﻿body, html {
+    height:100%;
+    min-height:100%;
+    margin:0;
+    cursor:default;
 }
-button {
+.chip {
+    font-size:16px;
+    line-height:40px;
+    position:absolute;
+    top:0;
+    right:2px;
+    color:#fff;
+    margin:5px;
+    border-radius:50%;
+    height:40px;
+    width:40px;
+    text-align:center;
+}
+.button {
+    display:inline-block;
+    border:1px solid #111;
+    color:#fff;
+    text-decoration:none;
+    font-size:14px;
+    cursor:pointer;
+    width:auto;
+    height:26px;
+}
+.large-button {
+    border:1px solid #111;
     width:200px;
-    height:2em;
+    height:28px;
     font-size:14px;
     overflow:hidden;
     vertical-align:top;
@@ -23,8 +40,49 @@ button {
     color:#fff;
     cursor:pointer;
 }
-button[disabled] {
+.large-button[disabled] {
     cursor:not-allowed;
     background-color:#444;
     color:#777;
+}
+.centered {
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translateX(-50%)translateY(-50%);
+}
+#login {
+    border:1px #111 solid;
+}
+input {
+    font-size:16px;
+    text-indent:3px;
+    height:26px;
+    padding:0px 0px 0px 5px;
+    width:100%;
+    background-color:#444;
+    border:1px solid #111;
+    color:#fff;
+}
+.system_msg {
+    color:#BDBDBD;font-style:italic;
+}
+.system_error {
+    color:#F00;
+}
+.user_name {
+    color:#F90;
+}
+.user_message {
+    color:#FFF;
+}
+.noselect {
+    -webkit-user-select:none;
+    -khtml-user-select:none
+    -moz-user-select:none;
+    -ms-user-select:none;
+    user-select:none;
+}
+input:focus, button:focus {
+    outline:none!important;
 }

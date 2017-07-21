@@ -110,7 +110,11 @@ class Room {
         echo "user_ready\n";
         $this->users[$user_id]->ready = 1;
         if ($this->user_count >= 3){
-            if ($this->check_ready() == 1){
+            if ($this->mode > -1)
+            {
+                $this->locked = 0;
+            }
+            else if ($this->check_ready() == 1){
                 $this->mode = 0;
                 $this->starting_users = $this->user_count;
                 $this->locked = 0;
@@ -126,10 +130,10 @@ class Room {
                 if ($this->users[$i]->ready == 1){
                     $this->locked = 1;
                 }
-                echo "User in slot ".$i." has disconnected\n"
+                echo "User in slot $i has disconnected\n";
                 $this->users[$i]->active = 0;
                 $this->user_count--;
-                $response_text = json_encode(array('type'=>'usermsg', 'room'=>$user_room, 'name'=>'Server', 'message'=>($this->users[$i]->name).' has disconnected. Waiting for someone to join.'));
+                $response_text = json_encode(array('type'=>'usermsg', 'room'=>'-1', 'name'=>'Server', 'message'=>($this->users[$i]->name).' has disconnected. Waiting for someone to join.'));
                 for ($j = 0; $j < 4; $j++){
                     if ($this->users[$j]->active == 1)
                         send_message($this->users[$j]->socket,$response_text);
@@ -433,6 +437,7 @@ $socket_receive = function($socket, $data){
         $user_name = $data->name;
         $user_message = $data->message;
         $msgip = '';
+
         socket_getpeername($socket,$msgip);
         // Create room if necessary
         if (array_key_exists($user_room,$room) == 0){
@@ -555,8 +560,8 @@ $socket_connect = function($socket){
 $socket_disconnect = function($socket){
     global $room;
     echo "user disconnected\n";
-    for ($i = 0; $i < count($room); $i++){
-        $room[$i]->remove_user($socket);
+    foreach ($room as $i){
+        $i->remove_user($socket);
     }
 };
 socket_start();

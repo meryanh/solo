@@ -58,8 +58,8 @@ var grabCard = function(e, el) {
     }
     var loc = getEventLoc(e);
     var rect = selectedCard.getBoundingClientRect();
-    selectedCard.style.top = (loc.y - rect.height/2) + 'px';
-    selectedCard.style.left = (loc.x - rect.width/2) + 'px';
+    selectedCard.style.top = (loc.y - 78) + 'px';
+    selectedCard.style.left = (loc.x - 53) + 'px';
     selectedCard.style.display = null;
     selectedCard.setAttribute('value', grabbed.getAttribute('value'));
     grabbed.style.display = 'none';
@@ -69,8 +69,8 @@ var dragCard = function(event) {
         return;
     var loc = getEventLoc(event);
     var rect = selectedCard.getBoundingClientRect();
-    selectedCard.style.top = (loc.y - rect.height/2) + 'px';
-    selectedCard.style.left = (loc.x - rect.width/2) + 'px';
+    selectedCard.style.top = (loc.y - 78) + 'px';
+    selectedCard.style.left = (loc.x - 53) + 'px';
 }
 var dropCard = function(event) {
     dragging = false;
@@ -112,8 +112,10 @@ var initSocket = function() {
         console.log('Connected to server');
     }
 
-    document.getElementById('send-btn').onclick =(function(){ //use clicks message send button	
-        var mymessage = document.getElementById('message').value; //get message text
+    document.getElementById('message').onkeydown =(function(event){ 
+        if (event.keyCode != 13)
+            return;
+        var mymessage = document.getElementById('message').value;
         document.getElementById('message').value = '';
         var myname = username;
         
@@ -137,9 +139,7 @@ var initSocket = function() {
         var umsg = msg.message;
         var uroom = msg.room;
         var uname = msg.name;
-
-        if (uroom != roomid)
-            return;
+        
         if(type == 'usermsg') {
             var msg = document.createElement('div');
             msg.className = '';
@@ -192,9 +192,9 @@ var initSocket = function() {
                         for (var i = 14; i < 17; i++){
                             u_playedusers[i-14] = rdata[i];
                         }
-                        setMode();
+                        // setMode();
                     }
-                    decorateCards();
+                    // decorateCards();
                 }
             }
         }
@@ -227,6 +227,7 @@ var readyUp = function() {
     };
     websocket.send(JSON.stringify(msg));
     document.getElementById('ready_button_container').style.display = 'none';
+    document.getElementById('game_area').style.display = 'block';
 }
 var login = function() {
     if (connected == false)
@@ -236,7 +237,6 @@ var login = function() {
     if (username == '')
         return;
     document.getElementById('login').style.display = 'none';
-    // document.getElementById('game_area').style.display = 'block';
     
     var msg = {
         message: '::J',
@@ -246,6 +246,7 @@ var login = function() {
     };
     websocket.send(JSON.stringify(msg));
     document.getElementById('ready_button_container').style.display = null;
+    document.getElementById('chat_box').style.display = 'block';
 }
 var placeBid = function(v){
     var msg = {
@@ -257,4 +258,10 @@ var placeBid = function(v){
     websocket.send(JSON.stringify(msg));
     document.getElementById('bidarea').style.display = 'none';
     document.getElementById('playarea').style.display = null;
+}
+var fixRoomNumber = function(e){
+    if (e.value > 5)
+        e.value = '5';
+    else if (e.value < 1)
+        e.value = '1';
 }
