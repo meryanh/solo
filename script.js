@@ -142,8 +142,12 @@ var initSocket = function() {
         
         if(type == 'usermsg') {
             var msg = document.createElement('div');
-            msg.className = '';
-            msg.innerHTML = '<span class="user_name">'+uname+'</span> : <span class="user_message">'+umsg+'</span>';
+            msg.innerHTML = '<span class="user_name">'+uname+'</span>: <span class="user_message">'+umsg+'</span>';
+            document.getElementById('message_box').appendChild(msg);
+        }
+        else if(type == 'system_msg') {
+            var msg = document.createElement('div');
+            msg.innerHTML = '<span class="system_message">'+umsg+'</span>';
             document.getElementById('message_box').appendChild(msg);
         }
         else if(type == 'system') {
@@ -158,8 +162,7 @@ var initSocket = function() {
                 if (userid == -1 && data.id != undefined) {
                     userid = parseInt(data.id);
                     var msg = document.createElement('div');
-                    msg.className = 'system_msg';
-                    msg.style.fontSize = '0.7em';
+                    msg.className = 'system_message';
                     msg.innerHTML = 'Room ' + roomid;
                     document.getElementById('message_box').appendChild(msg);
                 }
@@ -183,16 +186,35 @@ var initSocket = function() {
                         u_current_bid_user = rdata[4];
                         u_current_bid_value = rdata[5];
                         u_suit = rdata[6];
+                        switch (u_suit)
+                        {
+                            case '0':
+                                document.getElementById('trump').innerHTML = '♠';
+                                break;
+                            case '1':
+                                document.getElementById('trump').innerHTML = '♣';
+                                break;
+                            case '2':
+                                document.getElementById('trump').innerHTML = '♦';
+                                break;
+                            case '3':
+                                document.getElementById('trump').innerHTML = '♥';
+                                break;
+                            default:
+                                document.getElementById('trump').innerHTML = '╱';
+                                break;
+                        }
                         for (var i = 7; i < 10; i++){
                             u_playedcards[i-7] = parseInt(rdata[i]);
+                            document.getElementById("d"+(i-7)).setAttribute("value", u_playedcards[i-7]);
                         }
                         for (var i = 10; i < 14; i++){
                             u_playedusers[i-10] = rdata[i];
                         }
                         for (var i = 14; i < 17; i++){
-                            u_playedusers[i-14] = rdata[i];
+                            u_playedid[i-14] = rdata[i];
                         }
-                        // setMode();
+                        setMode();
                     }
                     // decorateCards();
                 }
@@ -204,7 +226,7 @@ var initSocket = function() {
     };
     websocket.onclose = function(ev){
         var msg = document.createElement('div');
-        msg.className = 'system_msg';
+        msg.className = 'system_error';
         msg.innerHTML = 'Connection Closed';
         document.getElementById('message_box').appendChild(msg);
     }; 
@@ -217,6 +239,25 @@ var initSocket = function() {
         var msg = document.createElement('div');
         initSocket();
     }; 
+}
+
+var setMode = function() {
+    if (mode === null)
+        return;
+    switch (mode)
+    {
+        case '0':
+        // Bidding
+        if (u_current_bid_user == userid)
+            document.getElementById('bidarea').style.display = null;
+        else
+            document.getElementById('bidarea').style.display = 'none';
+        break;
+        case '1':
+        // Playing
+        document.getElementById('bidarea').style.display = 'none';
+        break;
+    }
 }
 var readyUp = function() {    
     var msg = {
@@ -257,7 +298,6 @@ var placeBid = function(v){
     };
     websocket.send(JSON.stringify(msg));
     document.getElementById('bidarea').style.display = 'none';
-    document.getElementById('playarea').style.display = null;
 }
 var fixRoomNumber = function(e){
     if (e.value > 5)

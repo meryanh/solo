@@ -10,12 +10,14 @@
     position:absolute;
     top:0;
     right:2px;
+    background-color:#333;
     color:#fff;
     margin:5px;
     border-radius:50%;
     height:40px;
     width:40px;
     text-align:center;
+    overflow:hidden;
 }
 .button {
     display:inline-block;
@@ -64,14 +66,18 @@ input {
     border:1px solid #111;
     color:#fff;
 }
-.system_msg {
-    color:#BDBDBD;font-style:italic;
+.system_message {
+    color:#BDBDBD;
+    font-style:italic;
+    font-size:14px;
 }
 .system_error {
     color:#F00;
+    font-style:italic;
+    font-size:14px;
 }
 .user_name {
-    color:#F90;
+    color:#0cf;
 }
 .user_message {
     color:#FFF;
@@ -83,6 +89,50 @@ input {
     -ms-user-select:none;
     user-select:none;
 }
+#table {
+    background-color:#111;
+    height:165px;
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    padding:5px;
+    overflow:hidden;
+}
+#hand {
+    position:absolute;
+    top:175px;
+    left:0;
+    width:100%;
+    padding:5px;
+    overflow:hidden;
+}
 input:focus, button:focus {
     outline:none!important;
+}
+#message {
+    color:#FFF;
+    width:100%;
+    position:relative;
+    height:26px;
+    border:none;
+    border-top:2px solid #111;
+}
+.chat_wrapper {
+    position:absolute;
+    left:0px;
+    bottom:0px;
+    width:100%;
+    max-height:165px;
+    background-color:#333;
+    border-top:5px solid #111;
+    overflow:hidden;
+}
+.message_box {
+    color:#FFF;
+    overflow-x:auto;
+    position:relative;
+    max-height:129px;
+    font-size:16px;
+    margin-left:3px;
 }

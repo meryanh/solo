@@ -133,7 +133,7 @@ class Room {
                 echo "User in slot $i has disconnected\n";
                 $this->users[$i]->active = 0;
                 $this->user_count--;
-                $response_text = json_encode(array('type'=>'usermsg', 'room'=>'-1', 'name'=>'Server', 'message'=>($this->users[$i]->name).' has disconnected. Waiting for someone to join.'));
+                $response_text = json_encode(array('type'=>'system_msg', 'room'=>'-1', 'name'=>'Server', 'message'=>($this->users[$i]->name).' has disconnected. Waiting for someone to join.'));
                 for ($j = 0; $j < 4; $j++){
                     if ($this->users[$j]->active == 1)
                         send_message($this->users[$j]->socket,$response_text);
@@ -402,6 +402,7 @@ class Room {
         for ($i = 0; $i < 4; $i++){
             if ($this->users[$i]->bid_level > $value){
                 $is_greater = 0;
+                break;
             }
         }
         if ($is_greater == 1){
@@ -447,14 +448,14 @@ $socket_receive = function($socket, $data){
         if ($user_message == '::J'){
             $user_id = $room[$user_room]->add_user($user_name, $socket);
             if ($user_id == -1){
-                send_message($socket,json_encode(array('type'=>'usermsg', 'room'=>$user_room, 'name'=>'Server', 'message'=>'This room is full and cannot be joined.')));
+                send_message($socket,json_encode(array('type'=>'system_msg', 'room'=>$user_room, 'name'=>'Server', 'message'=>'This room is full and cannot be joined.')));
             }
             else {
                 echo "User joined in slot $user_id\n";
                 for ($i = 0; $i < 4; $i++){
                     if ($room[$user_room]->users[$i]->active == 1){
                         if ($i != $user_id)
-                            send_message($room[$user_room]->users[$i]->socket,json_encode(array('type'=>'usermsg', 'room'=>$user_room, 'name'=>'Server', 'message'=>($user_name.' has joined.'))));
+                            send_message($room[$user_room]->users[$i]->socket,json_encode(array('type'=>'system_msg', 'room'=>$user_room, 'name'=>'Server', 'message'=>($user_name.' has joined.'))));
                         send_message($room[$user_room]->users[$i]->socket,json_encode(array('type'=>'data', 'room'=>$user_room, 'name'=>'Server', 'message'=>('{"id":"'.$i.'","u":"'.($room[$user_room]->users[$i]->data()).'","r":"'.($room[$user_room]->data()).'"}'))));
                     }
                 }
@@ -511,13 +512,15 @@ $socket_receive = function($socket, $data){
                         $bid_placed = $room[$user_room]->place_bid($user_id, -1, -1);
                         break;
                 }
-                if ($bid_placed == 1){
-                    $response_text = json_encode(array('type'=>'usermsg', 'room'=>$user_room, 'name'=>'Server', 'message'=>$b_msg));
+                if ($bid_placed == 1 && $room[$user_room]->mode == 0){
+                    $msg1 = json_encode(array('type'=>'system_msg', 'room'=>$user_room, 'name'=>'Server', 'message'=>$b_msg));
+                    $msg2 = json_encode(array('type'=>'system_msg', 'room'=>$user_room, 'name'=>'Server', 'message'=>($room[$user_room]->users[$room[$user_room]->current_bid_user]->name).' is bidding.'));
                     for ($i = 0; $i < 4; $i++){
                         if ($room[$user_room]->users[$i]->active == 1){
-                            send_message($room[$user_room]->users[$i]->socket,$response_text);
-                            $response_text = json_encode(array('type'=>'usermsg', 'room'=>$user_room, 'name'=>'Server', 'message'=>'Next user to bid is '.$room[$user_room]->current_bid_user));
-                            send_message($room[$user_room]->users[$i]->socket,$response_text);
+                            if ($i != $user_id)
+                                send_message($room[$user_room]->users[$i]->socket,$msg1);
+                            if ($i != $room[$user_room]->current_bid_user)
+                                send_message($room[$user_room]->users[$i]->socket,$msg2);
                             send_message($room[$user_room]->users[$i]->socket,json_encode(array('type'=>'data', 'room'=>$user_room, 'name'=>'Server', 'message'=>('{"id":"'.$i.'","u":"'.($room[$user_room]->users[$i]->data()).'","r":"'.($room[$user_room]->data()).'"}'))));
                         }
                     }

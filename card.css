@@ -1,4 +1,5 @@
 ﻿.card {
+    position:relative;
     height:150px;
     width:100px;
     border:1px solid #000;
@@ -21,16 +22,16 @@
     max-width:100%;
 }
 .card.in-hand {
-    margin-right:-70px;
+    margin-right:-50px;
     transform:translateY(0.001px);
 }
-.card.in-hand:hover {
-    transform:translateX(-10px) translateY(-10px);
-}
-.card.in-hand:hover:after {
-    padding-bottom:14px;
-    padding-right:14px;
-}
+/* .card.in-hand:hover { */
+    /* transform:translateX(-10px) translateY(-10px); */
+/* } */
+/* .card.in-hand:hover:after { */
+    /* padding-bottom:14px; */
+    /* padding-right:14px; */
+/* } */
 .card:before {
     content:"";
     position:absolute;

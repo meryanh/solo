@@ -13,13 +13,15 @@
             <button class="button" id="login-btn" style="background-color:#4CAF50; float:right;" onclick="login();">Join</button>
         </div>
         <div id="game_area" style="display:none;">
-            <div id="table" style="background-color:#111;height:165px;position:absolute;top:0;left:0;width:100%;padding:5px;overflow:hidden;">
-                <div id="bidarea" style="display:none;text-align:center;margin-top:20px;"><button class="large-button">Pass</button><button class="large-button">Frog</button class="large-button"><br /><button>Spade Solo</button><button class="large-button">Club Solo</button><br /><button class="large-button">Diamond Solo</button><button class="large-button">Heart Solo</button><br /><button class="large-button">Misere</button><button class="large-button">Spread Misere</button></div>
+            <div id="table">
+                <div id="bidarea" style="display:none;text-align:center;margin-top:12px;"><button class="large-button" onclick="placeBid(0);">Pass</button><button class="large-button" onclick="placeBid(1);">Frog</button><br /><button class="large-button" onclick="placeBid(2);">Spade Solo</button><button class="large-button" onclick="placeBid(3);">Club Solo</button><br /><button class="large-button" onclick="placeBid(4);">Diamond Solo</button><button class="large-button" onclick="placeBid(5);">Heart Solo</button><br /><button class="large-button" onclick="placeBid(6);">Misere</button><button class="large-button" onclick="placeBid(7);">Spread Misere</button>
+                <div class="system_message" style="margin-top:5px;font-style:normal;">Place your bid.</div>
+                </div>
                 <span id="d0" class="card" value="0"></span>
                 <span id="d1" class="card" value="0"></span>
                 <span id="d2" class="card" value="0"></span>
             </div>
-            <div id="hand" style="position:absolute;top:175px;left:0;width:100%;padding:5px;overflow:hidden;">
+            <div id="hand">
                 <span id="c0" class="card in-hand" value="0" onmousedown="grabCard(event, this);" ontouchstart="grabCard(event, this);"></span>
                 <span id="c1" class="card in-hand" value="0" onmousedown="grabCard(event, this);" ontouchstart="grabCard(event, this);"></span>
                 <span id="c2" class="card in-hand" value="0" onmousedown="grabCard(event, this);" ontouchstart="grabCard(event, this);"></span>
@@ -35,18 +37,18 @@
                 <span id="c12" class="card in-hand" value="0" onmousedown="grabCard(event, this);" ontouchstart="grabCard(event, this);"></span>
                 <span id="c13" class="card in-hand" value="0" onmousedown="grabCard(event, this);" ontouchstart="grabCard(event, this);"></span>
             </div>
-            <span id="points" class="chip" style="background-color:#333;">50</span>
-            <span id="trump" class="chip" style="background-color:#333;top:125px;font-size:30px;">♠</span>
+            <span id="points" class="chip">50</span>
+            <span id="trump" class="chip" style="top:125px;font-size:30px;">╱</span>
             <span id="dragger" style="position:absolute;display:none;z-index:1000;" class="card" value="1"></span>
             <button class="button" id="show_button" title="Show Chat" style="background-color: #4CAF50;position:absolute;left:0;bottom:0;display:none;" onclick="document.getElementById('chat_box').style.display = 'block'; this.style.display = 'none';">&nbsp;</button>
         </div>
-        <div class="chat_wrapper" style="position:absolute;left:0px;bottom:0px;width:100%;max-height:165px;background-color:#333;border-top:5px solid #111;display:none;overflow:hidden;" id="chat_box">
-            <div class="message_box" id="message_box" style="color:#FFF;overflow-x:auto;position:relative;max-height:129px;font-size:16px;margin-left:3px;"></div>
+        <div class="chat_wrapper" style="display:none;" id="chat_box">
+            <div class="message_box" id="message_box"></div>
             <div>
                 <input type="text" name="name" id="name" style="display:none;" placeholder="Your Name" maxlength="15" />
                 <div style="display:flex;">
                     <button class="button" id="hide_button" title="Hide Chat" style="border-top:2px solid #111;background-color:#333;" onclick="document.getElementById('chat_box').style.display = 'none'; document.getElementById('show_button').style.display = 'block';">&nbsp;</button>
-                    <input type="text" name="message" id="message" placeholder="Message" maxlength="80" style="color:#FFF;width:100%;position:relative;height:26px;border:none;border-top:2px solid #111;"/>
+                    <input type="text" name="message" id="message" placeholder="Message" maxlength="80"/>
                 </div>
             </div>
         </div>
