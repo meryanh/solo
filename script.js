@@ -104,7 +104,10 @@ var dropCard = function(event) {
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 var initSocket = function() {
-    var wsUri = "ws://" + window.location.host.split(':')[0] + ":9000/server.php";
+    var wsUri = "ws://" + 
+                window.location.host.split(':')[0] +
+                ":9000" +
+                window.location.pathname + "server.php";
     websocket = new WebSocket(wsUri); 
     
     websocket.onopen = function(ev) {
